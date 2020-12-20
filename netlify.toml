@@ -1,0 +1,3 @@
+[dev]
+  command="yarn dev"
+  publish="public"

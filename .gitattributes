@@ -1,0 +1,11 @@
+# With auto, Git converts line endings for newly added files it determines to
+# be text to LF (never CRLF). The !eol directive overrides a user-set eol
+# directive that would have conflicted with auto, effectively making
+# .gitattributes the sole authority.
+# https://www.reddit.com/r/git/comments/6qmfbo/
+
+
+* text=auto !eol
+
+package-lock.json   binary
+yarn.lock           binary
