@@ -178,6 +178,11 @@ buffer-from@^1.0.0:
   resolved "https://registry.yarnpkg.com/buffer-from/-/buffer-from-1.1.1.tgz#32713bc028f75c02fdb710d7c7bcec1f2c6070ef"
   integrity sha512-MQcXEUbCKtEo7bhqEs6560Hyd4XaovZlO/k9V3hjVUF/zwW7KBVdSK4gIt/bzwS9MbR5qob+F5jusZsb0YQK2A==
 
+builtin-modules@^2.0.0:
+  version "2.0.0"
+  resolved "https://registry.yarnpkg.com/builtin-modules/-/builtin-modules-2.0.0.tgz#60b7ef5ae6546bd7deefa74b08b62a43a232648e"
+  integrity sha512-3U5kUA5VPsRUA3nofm/BXX7GVHKfxz0hOBAPxXrIvHzlDRkQVqEn6yi8QJegxl4LzOHLdvb7XF5dVawa/VVYBg==
+
 builtin-modules@^3.1.0:
   version "3.1.0"
   resolved "https://registry.yarnpkg.com/builtin-modules/-/builtin-modules-3.1.0.tgz#aad97c15131eb76b65b50ef208e7584cd76a7484"
@@ -384,6 +389,13 @@ is-core-module@^2.0.0:
   dependencies:
     has "^1.0.3"
 
+is-core-module@^2.1.0:
+  version "2.2.0"
+  resolved "https://registry.yarnpkg.com/is-core-module/-/is-core-module-2.2.0.tgz#97037ef3d52224d85163f5597b2b63d9afed981a"
+  integrity sha512-XRAfAdyyY5F5cOXn7hYQDqh2Xmii+DEfIcQGxK/uNwMHhIkPWO0g8msXcbzLe+MpGoR951MlqM/2iIlU4vKDdQ==
+  dependencies:
+    has "^1.0.3"
+
 is-expression@^4.0.0:
   version "4.0.0"
   resolved "https://registry.yarnpkg.com/is-expression/-/is-expression-4.0.0.tgz#c33155962abf21d0afd2552514d67d2ec16fd2ab"
@@ -529,7 +541,7 @@ normalize-path@^3.0.0, normalize-path@~3.0.0:
   resolved "https://registry.yarnpkg.com/normalize-path/-/normalize-path-3.0.0.tgz#0dcd69ff23a1c9b11fd0978316644a0388216a65"
   integrity sha512-6eZs5Ls3WtCisHWp9S2GUy8dqkpGi4BVSz3GaqiE6ezub0512ESztXUwUB6C6IKbQkY2Pnb/mD4WYojCRwcwLA==
 
-object-assign@^4.1.1:
+object-assign@^4.0.1, object-assign@^4.1.1:
   version "4.1.1"
   resolved "https://registry.yarnpkg.com/object-assign/-/object-assign-4.1.1.tgz#2109adc7965887cfc05cbbd442cac8bfbb360863"
   integrity sha1-IQmtx5ZYh8/AXLvUQsrIv7s2CGM=
@@ -690,6 +702,14 @@ require-relative@^0.8.7:
   resolved "https://registry.yarnpkg.com/require-relative/-/require-relative-0.8.7.tgz#7999539fc9e047a37928fa196f8e1563dabd36de"
   integrity sha1-eZlTn8ngR6N5KPoZb44VY9q9Nt4=
 
+resolve@^1.1.6:
+  version "1.19.0"
+  resolved "https://registry.yarnpkg.com/resolve/-/resolve-1.19.0.tgz#1af5bf630409734a067cae29318aac7fa29a267c"
+  integrity sha512-rArEXAgsBG4UgRGcynxWIWKFvh/XZCcS8UJdHhwy91zwAvCZIbcs+vAbflgBnNjYMs/i/i+/Ux6IZhML1yPvxg==
+  dependencies:
+    is-core-module "^2.1.0"
+    path-parse "^1.0.6"
+
 resolve@^1.11.0:
   version "1.15.1"
   resolved "https://registry.yarnpkg.com/resolve/-/resolve-1.15.1.tgz#27bdcdeffeaf2d6244b95bb0f9f4b4653451f3e8"
@@ -705,12 +725,30 @@ resolve@^1.15.1, resolve@^1.17.0:
     is-core-module "^2.0.0"
     path-parse "^1.0.6"
 
+rollup-plugin-coffee-script@^2.0.0:
+  version "2.0.0"
+  resolved "https://registry.yarnpkg.com/rollup-plugin-coffee-script/-/rollup-plugin-coffee-script-2.0.0.tgz#6015220153686fece8f32772d3b816f9e28977f7"
+  integrity sha512-7hEjNhf9pezf/4PxHKHF2uEy+sgR1X9R5mCnOoF/ctKpFc5emY0+wYIxBth/0FJAa4F3+MQHOFEVxsuMIlOtUA==
+  dependencies:
+    object-assign "^4.0.1"
+    rollup-plugin-node-resolve "^3.0.0"
+    rollup-pluginutils "^2.0.1"
+
 rollup-plugin-livereload@^2.0.0:
   version "2.0.0"
   resolved "https://registry.yarnpkg.com/rollup-plugin-livereload/-/rollup-plugin-livereload-2.0.0.tgz#d3928d74e8cf2ae4286c5dd46b770fd3f3b82313"
   integrity sha512-oC/8NqumGYuphkqrfszOHUUIwzKsaHBICw6QRwT5uD07gvePTS+HW+GFwu6f9K8W02CUuTvtIM9AWJrbj4wE1A==
   dependencies:
     livereload "^0.9.1"
+
+rollup-plugin-node-resolve@^3.0.0:
+  version "3.4.0"
+  resolved "https://registry.yarnpkg.com/rollup-plugin-node-resolve/-/rollup-plugin-node-resolve-3.4.0.tgz#908585eda12e393caac7498715a01e08606abc89"
+  integrity sha512-PJcd85dxfSBWih84ozRtBkB731OjXk0KnzN0oGp7WOWcarAFkVa71cV5hTJg2qpVsV2U8EUwrzHP3tvy9vS3qg==
+  dependencies:
+    builtin-modules "^2.0.0"
+    is-module "^1.0.0"
+    resolve "^1.1.6"
 
 rollup-plugin-svelte@^6.0.0:
   version "6.1.0"
@@ -731,7 +769,7 @@ rollup-plugin-terser@^7.0.0:
     serialize-javascript "^4.0.0"
     terser "^5.0.0"
 
-rollup-pluginutils@^2.8.2:
+rollup-pluginutils@^2.0.1, rollup-pluginutils@^2.8.2:
   version "2.8.2"
   resolved "https://registry.yarnpkg.com/rollup-pluginutils/-/rollup-pluginutils-2.8.2.tgz#72f2af0748b592364dbd3389e600e5a9444a351e"
   integrity sha512-EEp9NhnUkwY8aif6bxgovPHMoMoNr2FulJziTndpt5H9RdwC47GSGuII9XxpSdzVGM0GWrNPHV6ie1LTNJPaLQ==

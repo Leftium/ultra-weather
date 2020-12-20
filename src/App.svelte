@@ -6,6 +6,7 @@
 <template lang=pug>
 main
     h1 Hello {name}!
+    p: a(href=".netlify/functions/serverless") serverless
     p.
         Visit the #[a(href="https://svelte.dev/tutorial") Svelte tutorial]
         to learn how to build Svelte apps.

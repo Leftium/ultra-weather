@@ -1,3 +1,6 @@
 [dev]
-  command="yarn dev"
-  publish="public"
+  command = "yarn dev"
+  publish = "public"
+
+[build]
+  functions = "/functions/"

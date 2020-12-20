@@ -4,6 +4,8 @@ import commonjs from '@rollup/plugin-commonjs';
 import livereload from 'rollup-plugin-livereload';
 import { terser } from 'rollup-plugin-terser';
 
+import coffeescript from 'rollup-plugin-coffee-script'
+
 import autoPreprocess from 'svelte-preprocess'
 
 const production = !process.env.ROLLUP_WATCH;
@@ -29,7 +31,17 @@ function serve() {
 	};
 }
 
-export default {
+export default [{
+    input: 'src/functions/serverless.coffee',
+    output: {
+        format: 'cjs',
+        name: 'serverless',
+        file: 'functions/serverless.js'
+    },
+	plugins: [
+		coffeescript(),
+    ]
+}, {
 	input: 'src/main.js',
 	output: {
 		sourcemap: true,
@@ -81,4 +93,4 @@ export default {
 	watch: {
 		clearScreen: false
 	}
-};
+}];
