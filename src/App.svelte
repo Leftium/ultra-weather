@@ -165,13 +165,7 @@ main
         div#currently.flex-top.flex-vertical
             #links-container.flex-top.flex-container
                 #links
-                    a(href="http://forecast.io/#/f/#{'aaa'},#{'zlongitude'}") Full forecast.io
-                    | &nbsp;|&nbsp;
-                    a.json-link(href="/weather?'bbb'=#{'ccc'},longitude=#{'longitude'}")
-                        span JSON Data
-                    |&nbsp;|&nbsp;
-                    a(href="/about")
-                        span Help/About
+                    a(href="https://darksky.net/forecast/{data.latitude},{data.longitude}/") Full DarkSky Forecast
             .forecast.flex-bottom.flex-vertical
                 div.flex-item.flex-container.center
                     h1.location {data.location}
