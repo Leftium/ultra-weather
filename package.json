@@ -20,8 +20,11 @@
   },
   "dependencies": {
     "axios": "^0.21.0",
+    "chartist": "^0.11.4",
+    "chartist-plugin-pointlabels": "^0.0.6",
     "dayjs": "^1.9.7",
     "dotenv": "^8.2.0",
+    "jquery": "^3.5.1",
     "rollup-plugin-coffee-script": "^2.0.0",
     "sirv-cli": "^1.0.0"
   }

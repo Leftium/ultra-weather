@@ -1,17 +1,3 @@
-html, body {
-	position: relative;
-	width: 100%;
-	height: 100%;
-}
-
-body {
-	color: #333;
-	margin: 0;
-	padding: 8px;
-	box-sizing: border-box;
-	font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
-}
-
 a {
 	color: rgb(0,100,200);
 	text-decoration: none;
@@ -60,4 +46,234 @@ button:not(:disabled):active {
 
 button:focus {
 	border-color: #666;
+}
+
+
+@media (orientation: portrait) {
+.portrait { display: block; }
+.landscape { display: none; }
+}
+@media (orientation: landscape) {
+.portrait { display: none; }
+.landscape { display: block; }
+}
+
+
+html, body {
+  max-width: 600px;
+  height: 100vh;
+  margin: 0;
+  font-family: helvetica, arial, sans-serif;
+}
+
+
+/* ChartistJS */
+/* Use this selector to override the line style on a given series */
+
+.ct-series-e .ct-point {
+  /* stroke-linecap: square; */
+  stroke: mediumpurple;
+}
+
+.ct-series-f .ct-point {
+  /* stroke-linecap: square; */
+  stroke: purple;
+}
+
+.ct-series-f .ct-label,
+.ct-series-e .ct-label,
+.ct-series-a .ct-label,
+.ct-series-b .ct-label,
+.ct-series-a .ct-point,
+.ct-series-b .ct-point{
+  display: none;
+}
+
+.ct-series-a .ct-line {
+  stroke: lightpink;
+}
+
+
+.ct-series-b .ct-line {
+  stroke: lightblue;
+}
+
+.ct-series-c .ct-point,
+.ct-series-c .ct-label,
+.ct-series-c .ct-line {
+  stroke: red;
+}
+
+
+.ct-series-d .ct-point,
+.ct-series-d .ct-label,
+.ct-series-d .ct-line {
+  stroke: blue;
+}
+
+/* renderjson */
+.renderjson a              { text-decoration: none; }
+.renderjson .disclosure    { color: gray;
+                             font-size: 125%;
+                             -webkit-tap-highlight-color: transparent;}
+.renderjson .syntax        { color: grey; }
+.renderjson .string        { color: red; }
+.renderjson .number        { color: darkcyan; }
+.renderjson .boolean       { color: plum; }
+.renderjson .key           { color: blue; }
+.renderjson .keyword       { color: goldenrodyellow; }
+.renderjson .object.syntax { color: seagreen; }
+.renderjson .array.syntax  { color: salmon; }
+
+
+
+/* HyperWeather */
+
+#currently .temperature {
+  display: inline-block;
+  font-size: 60px;
+}
+
+.celsius,
+.fahrenheit {
+  -webkit-tap-highlight-color: transparent;
+}
+
+
+.flex-container {
+  padding: 0;
+  margin: 0;
+  list-style: none;
+  
+  -ms-box-orient: horizontal;
+  display: flex;
+}
+
+.center { 
+  -webkit-justify-content: center; 
+  justify-content: center; 
+}  
+
+.space-between { 
+  -webkit-justify-content: space-between; 
+  justify-content: space-between; 
+}
+
+.today {
+  font-weight: bold;
+}
+
+#links {
+  margin: auto;
+}
+
+
+.flex-vertical {
+  display: flex;
+  flex-direction: column;
+  /* align-items: flex-start; */
+}
+
+.flex-item {
+  flex-basis: auto;
+}
+
+.flex-top {
+  flex-basis: auto;
+  /* border: 1px solid green; */
+}
+.flex-bottom {
+  flex-grow: 1;
+  /* border: 1px solid green; */
+}
+
+.location {
+  margin: 15px;
+}
+
+hr {
+  width: 98%;
+  margin-left: 0;
+  margin-right: 0;
+}
+
+.hidden {
+  display: none;
+}
+
+.view {
+  position: fixed;
+  top: 0; bottom: 0;
+  left: 0; right: 0;
+  padding: 8;
+}
+
+.weather-data .close {
+  position: fixed;
+  top: 10; right: 25;
+}
+
+.view.weather-data {
+  background-color: white;
+  overflow-y: scroll;
+  -webkit-overflow-scrolling: touch;
+}
+
+.weather-data .data {
+    height: calc(100% + 1px);
+}
+
+.about {
+  margin: 10;
+}
+
+.about .link {
+  margin: 5;
+}
+
+.about h1 {
+  margin-top: 5;
+  margin-bottom: 2;
+}
+
+.about h2,
+.about h3 {
+  margin-top: 2;
+}
+
+#chart i.wi,
+#wide-chart i.wi {
+  width: 40px;
+  height: 40px;
+  font-size: xx-large;
+}
+
+
+#currently i.wi {
+  width: 64px;
+  height: 64px;
+  font-size: 55px;
+  text-align: center;
+  margin-right: 15px;
+  margin-bottom: 15px;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  font-weight: bold;
+  display: inline-block;
+}
+
+-i.wi {
+  font-size: 40px;
+  display: inline-block;
+  font-family: 'weathericons';
+  font-style: normal;
+  font-weight: normal;
+  line-height: 1;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  float: left;
+  margin-right: 15px;
+  margin-bottom: 0px;
+  min-width: 40px;
+  text-align: center;
 }

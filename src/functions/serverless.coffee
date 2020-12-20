@@ -21,14 +21,10 @@ exports.handler = (event, context) ->
     data = response.data
     # console.log data
 
-    payload =
-        ipAddres: ipAddress
-        latitude: data.lat
-        longitude: data.lon
-        location: data.city or data.regionName or data.country
+    latitude = data.lat
+    longitude = data.lon
+    location = data.city or data.regionName or data.country
 
-    if mockIp
-        payload.mockIp = true
 
     key = process.env.DARK_SKY_API_KEY
     # console.log key
@@ -39,9 +35,9 @@ exports.handler = (event, context) ->
     tsMinusOneDay = unixEpoch - SECONDS_PER_DAY
     tsMinusTwoDays = unixEpoch - SECONDS_PER_DAY*2
 
-    url0 = "https://api.darksky.net/forecast/#{key}/#{payload.latitude},#{payload.longitude}"
-    url1 = "https://api.darksky.net/forecast/#{key}/#{payload.latitude},#{payload.longitude},#{tsMinusOneDay}"
-    url2 = "https://api.darksky.net/forecast/#{key}/#{payload.latitude},#{payload.longitude},#{tsMinusTwoDays}"
+    url0 = "https://api.darksky.net/forecast/#{key}/#{latitude},#{longitude}"
+    url1 = "https://api.darksky.net/forecast/#{key}/#{latitude},#{longitude},#{tsMinusOneDay}"
+    url2 = "https://api.darksky.net/forecast/#{key}/#{latitude},#{longitude},#{tsMinusTwoDays}"
 
     console.log url1
 
@@ -84,8 +80,16 @@ exports.handler = (event, context) ->
             apparentTemperatureMax: data?.apparentTemperatureMax
 
     results =
+        ipAddress: ipAddress
+        latitude: latitude
+        longitude: longitude
+        location: location
+
         currently: null
         daily: []
+
+    if mockIp
+        results.mockIp = true
 
     results.summary = data[0].daily.summary
     results.currently = extractFields data[0].currently
