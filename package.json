@@ -20,6 +20,7 @@
   },
   "dependencies": {
     "axios": "^0.21.0",
+    "dotenv": "^8.2.0",
     "rollup-plugin-coffee-script": "^2.0.0",
     "sirv-cli": "^1.0.0"
   }
