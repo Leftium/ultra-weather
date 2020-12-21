@@ -241,39 +241,29 @@ hr {
   margin-top: 2;
 }
 
-#chart i.wi,
-#wide-chart i.wi {
-  width: 40px;
-  height: 40px;
-  font-size: xx-large;
-}
 
-
-#currently i.wi {
+#currently div.icon {
   width: 64px;
   height: 64px;
-  font-size: 55px;
-  text-align: center;
-  margin-right: 15px;
-  margin-bottom: 15px;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  font-weight: bold;
   display: inline-block;
 }
 
--i.wi {
-  font-size: 40px;
-  display: inline-block;
-  font-family: 'weathericons';
-  font-style: normal;
-  font-weight: normal;
-  line-height: 1;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  float: left;
-  margin-right: 15px;
+div.icon {
   margin-bottom: 0px;
   min-width: 40px;
-  text-align: center;
+}
+
+.icon {
+    width: 40px;
+    height: 40px;
+}
+
+div.icon img,
+.icon img {
+    width: 100%;
+    object-fit: contain;
+}
+
+.template .icon {
+    margin: auto;
 }

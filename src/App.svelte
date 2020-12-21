@@ -76,7 +76,9 @@
         temperatureDiv data.currently.temperature, $currently.find('.temperature')
         temperatureDiv data.currently.apparentTemperature, $currently.find('.apparentTemperature')
         $currently.find('.summary').html data.currently.summary
-        $currently.find('i.wi').addClass 'wi-forecast-io-' + data.currently.icon
+
+        img = "https://darksky.net/images/weather-icons/#{data.currently.icon}.png"
+        $currently.find('div.icon').append("<img src=#{img}>")
 
         jq('#summary').html data.summary
 
@@ -107,8 +109,10 @@
                              .addClass("day-#{i}")
                              .attr 'title', data.daily[i].summary
 
+            img = "https://darksky.net/images/weather-icons/#{list[i]}.png"
+
             jq(div).insertBefore($template)
-            jq(div).find('i').addClass('wi-forecast-io-' + list[i])
+            jq(div).find('div.icon').append("<img src=#{img}>")
             jq("#chart .day-#{i} .label").html fdata.labels[i]
 
         $template.remove()
@@ -120,8 +124,10 @@
                              .addClass("day-#{i}")
                              .attr 'title', data.daily[i].summary
 
+            img = "https://darksky.net/images/weather-icons/#{list[i]}.png"
+
             jq(div).insertBefore($template)
-            jq(div).find('i').addClass('wi-forecast-io-' + list[i])
+            jq(div).find('div.icon').append("<img src=#{img}>")
             jq("#wide-chart .day-#{i} .label").html fdata.labels[i]
 
         $template.remove()
@@ -168,7 +174,7 @@ main
                 div.flex-item.flex-container.center
                     h1.location {data.location}
                 div.icon-and-temperature.flex-item.flex-container.center
-                    i.wi
+                    div.icon
                     div.temperature
                 div.flex-item.flex-container.center
                     span.summary
@@ -180,7 +186,7 @@ main
         #chart.flex-bottom
             div#daily.flex-container.space-between
                 div.template
-                    i.wi.wi-fw
+                    div.icon
                     div.label
             div.chartist.ct-chart.ct-golden-section
 
@@ -190,7 +196,7 @@ main
             div#summary
             div#daily.flex-container.space-between
                 div.template
-                    i.wi
+                    div.icon
                     div.label
             div.chartist.ct-major-twelfth
 
