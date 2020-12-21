@@ -51,7 +51,7 @@ exports.handler = (event, context) ->
         data = await response.data
 
 
-    if USE_MOCK_DATA = false
+    if USE_MOCK_DATA = mockIp
         response = await axios.get "http://#{host}/json/mock-data.json"
         data = await response.data
     else
