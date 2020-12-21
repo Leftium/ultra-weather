@@ -21,10 +21,10 @@
             series: [
                 makeSeries 'apparent-high'
                 makeSeries 'apparent-low'
+                makeSeries 'current-apparent'
+                makeSeries 'current'
                 makeSeries 'high'
                 makeSeries 'low'
-                makeSeries 'current.apparent'
-                makeSeries 'current'
             ]
 
     sliceData = (data, length) ->
@@ -53,23 +53,23 @@
             #TODO: better check for today
             if i is 2
                 fdata.labels.push ('<b>Today</b>')
-                cdata.series[4].data[i] = celsius data.currently.apparentTemperature
-                fdata.series[4].data[i] =         data.currently.apparentTemperature
+                cdata.series[2].data[i] = celsius data.currently.apparentTemperature
+                fdata.series[2].data[i] =         data.currently.apparentTemperature
 
-                cdata.series[5].data[i] = celsius data.currently.temperature
-                fdata.series[5].data[i] =         data.currently.temperature
+                cdata.series[3].data[i] = celsius data.currently.temperature
+                fdata.series[3].data[i] =         data.currently.temperature
             else
                 fdata.labels.push (dayjs.unix(row.time).format 'dd-DD')
 
             cdata.series[0].data.push celsius row.apparentTemperatureMax
             cdata.series[1].data.push celsius row.apparentTemperatureMin
-            cdata.series[2].data.push celsius row.temperatureMax
-            cdata.series[3].data.push celsius row.temperatureMin
+            cdata.series[4].data.push celsius row.temperatureMax
+            cdata.series[5].data.push celsius row.temperatureMin
 
             fdata.series[0].data.push row.apparentTemperatureMax
             fdata.series[1].data.push row.apparentTemperatureMin
-            fdata.series[2].data.push row.temperatureMax
-            fdata.series[3].data.push row.temperatureMin
+            fdata.series[4].data.push row.temperatureMax
+            fdata.series[5].data.push row.temperatureMin
 
         $currently = jq('#currently').attr 'title', data.summary
 
@@ -144,9 +144,7 @@
                 plugins: [
                     ctPointLabels options =
                         textAnchor: 'middle'
-                        labelOffset:
-                            x: 0,
-                            y: -10
+                        labelOffset: { x: 0, y: -10 }
                         labelInterpolationFnc: (v) -> Math.round v
                 ]
 
