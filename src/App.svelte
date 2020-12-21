@@ -8,8 +8,6 @@
     import Chartist from 'chartist'
     import ctPointLabels from 'chartist-plugin-pointlabels'
 
-    data = {}
-
     initData = () ->
         makeSeries = (name) ->
             value =
@@ -27,14 +25,21 @@
                 makeSeries 'low'
             ]
 
+    getData = () ->
+        url = '/.netlify/functions/serverless'
+        response = await axios.get url
+        data = response.data
+
+    cdata = initData()
+    fdata = initData()
+
+    data = getData()
+
     sliceData = (data, length) ->
         data.labels = data.labels.slice 0, length
         data.series.forEach (series, i) ->
             data.series[i].data = data.series[i].data.slice 0, length
         data
-
-    cdata = initData()
-    fdata = initData()
 
     celsius = (f) -> 5/9 * (f - 32)
 
@@ -44,9 +49,7 @@
         div.append jq('<span>').addClass('celsius').html("#{Math.round c}&deg;C")
 
     onMount () ->
-        url = '/.netlify/functions/serverless'
-        response = await axios.get url
-        data = response.data
+        data = await getData()
         console.log data
 
         data.daily.forEach (row, i) ->
@@ -164,41 +167,41 @@ main
     // p: a(href=".netlify/functions/serverless") serverless
     // pre {JSON.stringify(fdata, null, 4)}
 
+    +await('data then data')
+        .view.portrait
+            div#currently.flex-top.flex-vertical
+                #links-container.flex-top.flex-container
+                    #links
+                        a(href="https://darksky.net/forecast/{data.latitude},{data.longitude}/") Full DarkSky Forecast
+                .forecast.flex-bottom.flex-vertical
+                    div.flex-item.flex-container.center
+                        h1.location {data.location}
+                    div.icon-and-temperature.flex-item.flex-container.center
+                        div.icon
+                        div.temperature
+                    div.flex-item.flex-container.center
+                        span.summary
+                        span . Feels like&nbsp;
+                        span.apparentTemperature
+                    div.flex-item.flex-container.center
+                        hr
 
-    .view.portrait
-        div#currently.flex-top.flex-vertical
-            #links-container.flex-top.flex-container
-                #links
-                    a(href="https://darksky.net/forecast/{data.latitude},{data.longitude}/") Full DarkSky Forecast
-            .forecast.flex-bottom.flex-vertical
-                div.flex-item.flex-container.center
-                    h1.location {data.location}
-                div.icon-and-temperature.flex-item.flex-container.center
-                    div.icon
-                    div.temperature
-                div.flex-item.flex-container.center
-                    span.summary
-                    span . Feels like&nbsp;
-                    span.apparentTemperature
-                div.flex-item.flex-container.center
-                    hr
+            #chart.flex-bottom
+                div#daily.flex-container.space-between
+                    div.template
+                        div.icon
+                        div.label
+                div.chartist.ct-chart.ct-golden-section
 
-        #chart.flex-bottom
-            div#daily.flex-container.space-between
-                div.template
-                    div.icon
-                    div.label
-            div.chartist.ct-chart.ct-golden-section
-
-    .view.landscape
-        #wide-chart
-            h1.location {data.location}
-            div#summary
-            div#daily.flex-container.space-between
-                div.template
-                    div.icon
-                    div.label
-            div.chartist.ct-major-twelfth
+        .view.landscape
+            #wide-chart
+                h1.location {data.location}
+                div#summary
+                div#daily.flex-container.space-between
+                    div.template
+                        div.icon
+                        div.label
+                div.chartist.ct-major-twelfth
 
 </template>
 
