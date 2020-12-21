@@ -3,8 +3,8 @@ require('dotenv').config()
 import axios from 'axios'
 
 exports.handler = (event, context) ->
-    console.log """\ncontext: #{JSON.stringify context, null, 2},
-                   event: #{JSON.stringify event, null, 2}\n"""
+    # console.log """\ncontext: #{JSON.stringify context, null, 2},
+    #               event: #{JSON.stringify event, null, 2}\n"""
 
     ipAddress = event.headers['client-ip']
     host = event.headers['host']
@@ -39,7 +39,7 @@ exports.handler = (event, context) ->
     url1 = "https://api.darksky.net/forecast/#{key}/#{latitude},#{longitude},#{tsMinusOneDay}"
     url2 = "https://api.darksky.net/forecast/#{key}/#{latitude},#{longitude},#{tsMinusTwoDays}"
 
-    console.log url1
+    # console.log url1
 
     callDarkSkyApi = (url) ->
         response = await axios.get url, config =
