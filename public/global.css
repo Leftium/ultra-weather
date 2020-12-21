@@ -49,11 +49,11 @@ button:focus {
 }
 
 
-@media (orientation: portrait) {
+@media (max-aspect-ratio: 11/10 ) {
 .portrait { display: block; }
 .landscape { display: none; }
 }
-@media (orientation: landscape) {
+@media (min-aspect-ratio: 11/10) {
 .portrait { display: none; }
 .landscape { display: block; }
 }
