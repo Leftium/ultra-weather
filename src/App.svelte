@@ -51,6 +51,7 @@
     onMount () ->
         data = await getData()
         console.log data
+        window.data = data
 
         data.daily.forEach (row, i) ->
             #TODO: better check for today
@@ -167,41 +168,41 @@ main
     // p: a(href=".netlify/functions/serverless") serverless
     // pre {JSON.stringify(fdata, null, 4)}
 
-    +await('data then data')
-        .view.portrait
-            div#currently.flex-top.flex-vertical
-                #links-container.flex-top.flex-container
-                    #links
-                        a(href="https://darksky.net/forecast/{data.latitude},{data.longitude}/") Full DarkSky Forecast
-                .forecast.flex-bottom.flex-vertical
-                    div.flex-item.flex-container.center
-                        h1.location {data.location}
-                    div.icon-and-temperature.flex-item.flex-container.center
-                        div.icon
-                        div.temperature
-                    div.flex-item.flex-container.center
-                        span.summary
-                        span . Feels like&nbsp;
-                        span.apparentTemperature
-                    div.flex-item.flex-container.center
-                        hr
+    // +await('data then data')
+    .view.portrait
+        div#currently.flex-top.flex-vertical
+            #links-container.flex-top.flex-container
+                #links
+                    a(href="https://darksky.net/forecast/{data.latitude},{data.longitude}/") Full DarkSky Forecast
+            .forecast.flex-bottom.flex-vertical
+                div.flex-item.flex-container.center
+                    h1.location {data.location || 'loading...'}
+                div.icon-and-temperature.flex-item.flex-container.center
+                    div.icon
+                    div.temperature
+                div.flex-item.flex-container.center
+                    span.summary
+                    span . Feels like&nbsp;
+                    span.apparentTemperature
+                div.flex-item.flex-container.center
+                    hr
 
-            #chart.flex-bottom
-                div#daily.flex-container.space-between
-                    div.template
-                        div.icon
-                        div.label
-                div.chartist.ct-chart.ct-golden-section
+        #chart.flex-bottom
+            div#daily.flex-container.space-between
+                div.template
+                    div.icon
+                    div.label
+            div.chartist.ct-chart.ct-golden-section
 
-        .view.landscape
-            #wide-chart
-                h1.location {data.location}
-                div#summary
-                div#daily.flex-container.space-between
-                    div.template
-                        div.icon
-                        div.label
-                div.chartist.ct-major-twelfth
+    .view.landscape
+        #wide-chart
+            h1.location {data.location || 'loading...'}
+            div#summary
+            div#daily.flex-container.space-between
+                div.template
+                    div.icon
+                    div.label
+            div.chartist.ct-major-twelfth
 
 </template>
 
