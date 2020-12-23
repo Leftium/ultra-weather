@@ -3,7 +3,7 @@ require('dotenv').config()
 import axios from 'axios'
 
 exports.handler = (event, context) ->
-    # console.log """\ncontext: #{JSON.stringify context, null, 2},
+    #console.log """\ncontext: #{JSON.stringify context, null, 2},
     #               event: #{JSON.stringify event, null, 2}\n"""
 
     ipAddress = event.headers['client-ip']
@@ -90,6 +90,7 @@ exports.handler = (event, context) ->
 
     if mockIp
         results.mockIp = true
+        results.location += ' (mock data)'
 
     results.summary = data[0].daily.summary
     results.currently = extractFields data[0].currently
@@ -98,6 +99,8 @@ exports.handler = (event, context) ->
 
     data[0].daily.data.forEach (data) ->
         results.daily.push extractFields(data)
+
+    console.log results
 
     return await value =  # `await` needed to force async function.
         statusCode: 200,
