@@ -49,7 +49,7 @@
         div.append jq('<span>').addClass('celsius').html("#{Math.round c}&deg;C")
 
     onMount () ->
-        data = await getData()
+        data = await data
         console.log data
         window.data = data
 
