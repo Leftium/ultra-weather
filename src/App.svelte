@@ -104,6 +104,10 @@
             chart.update sliceData(jq.extend(true, {}, cdata), 5)
             wideChart.update cdata
 
+        jq('.chartist').click (e) ->
+            e.preventDefault()
+            jq('.chartist').toggleClass 'simple'
+
 
         list = (day.icon for day in data.daily)
         console.log list
@@ -194,7 +198,7 @@ main
                     div.template
                         div.icon
                         div.label
-                div.chartist.ct-chart.ct-golden-section
+                div.chartist.ct-chart.ct-golden-section.simple
 
         .view.landscape
             #wide-chart
@@ -204,7 +208,7 @@ main
                     div.template
                         div.icon
                         div.label
-                div.chartist.ct-major-twelfth
+                div.chartist.ct-major-twelfth.simple
 
 </template>
 
