@@ -70,12 +70,6 @@ html, body {
 /* ChartistJS */
 /* Use this selector to override the line style on a given series */
 
-.ct-series-c .ct-point {
-  /* stroke-linecap: square; */
-  stroke: mediumpurple;
-  display: none;
-}
-
 .ct-series-d .ct-point {
   /* stroke-linecap: square; */
   stroke: purple;
@@ -87,6 +81,12 @@ html, body {
 .ct-series-d .ct-label,
 .ct-series-a .ct-point,
 .ct-series-b .ct-point{
+  display: none;
+}
+
+.ct-series-c .ct-point {
+  /* stroke-linecap: square; */
+  stroke: mediumpurple;
   display: none;
 }
 
