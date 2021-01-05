@@ -73,6 +73,7 @@ html, body {
 .ct-series-c .ct-point {
   /* stroke-linecap: square; */
   stroke: mediumpurple;
+  display: none;
 }
 
 .ct-series-d .ct-point {
@@ -91,11 +92,13 @@ html, body {
 
 .ct-series-a .ct-line {
   stroke: lightpink;
+  display: none;
 }
 
 
 .ct-series-b .ct-line {
   stroke: lightblue;
+  display: none;
 }
 
 .ct-series-e .ct-point,
