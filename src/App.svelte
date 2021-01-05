@@ -140,6 +140,7 @@
 
         makeChart = (id, data) ->
             new Chartist.Line id, data,
+                lineSmooth: Chartist.Interpolation.none()
                 # low: 50
                 axisY:
                     showLabel: false
@@ -152,7 +153,6 @@
                     right:  20,
                     bottom: 15,
                     left:  -15
-
                 plugins: [
                     ctPointLabels options =
                         textAnchor: 'middle'
