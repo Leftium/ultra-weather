@@ -73,6 +73,10 @@ html, body {
   font-size: 60px;
 }
 
+.day-2 {
+    font-weight: bold;
+}
+
 .celsius,
 .fahrenheit {
   -webkit-tap-highlight-color: transparent;
