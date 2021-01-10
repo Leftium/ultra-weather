@@ -8,6 +8,19 @@
     import Chartist from 'chartist'
     import ctPointLabels from 'chartist-plugin-pointlabels'
 
+    import Chart from 'chart.js'
+    import ChartDataLabels from 'chartjs-plugin-datalabels'
+
+
+    COLORS =
+        red: '#dc322f'
+        blue: '#268bd2'
+        lightblue: '#268bd244'
+        purple: '#6c71c4'
+        gray: '#586e75'
+
+    canvas1 = null
+
     initData = () ->
         makeSeries = (name) ->
             value =
@@ -164,9 +177,148 @@
                         labelInterpolationFnc: (v) -> Math.round v
                 ]
 
+        console.log 'JKM'
+        console.log data
 
+        now = dayjs()
+
+        labels = []
+        precipProbability = []
+        temperature = []
+        temperatureMin = []
+        temperatureMax = []
+
+        for dailyData,i in data.daily when i < 5
+            jsDate = dayjs.unix dailyData.time
+            if jsDate.isSame now, 'day'
+                labels.push "Today"
+            else
+                labels.push jsDate.format 'dd-DD'
+
+            temperature.push dailyData.temperature
+            precipProbability.push dailyData.precipProbability * 100
+
+            temperatureMin.push dailyData.temperatureMin
+            temperatureMax.push dailyData.temperatureMax
+
+        dataDaily =
+            labels: labels
+            precipProbability: precipProbability
+            temperatureMin: temperatureMin
+            temperatureMax: temperatureMax
+
+        console.log 'dataDaily'
+        console.log dataDaily
+
+        dataCurrently =
+            labels: ['', '', 'Temperature']
+            temperature: [NaN, NaN, data.currently.temperature]
+
+        console.log 'dataCurrently'
+        console.log dataCurrently
+        console.log canvas1
+
+        makeChartJs =  (canvas, dataCurrently, dataDaily) ->
+            ctx = canvas.getContext('2d')
+
+            chart = new Chart ctx, options =
+                # The type of chart we want to create
+                type: 'line'
+                # The data for our dataset
+                data:
+                    labels: dataDaily.labels
+                    datasets: [
+                        currently =
+                            label: 'Current'
+                            backgroundColor: COLORS.purple
+                            borderColor: COLORS.purple
+                            data: dataCurrently.temperature
+                            fill: false
+                            lineTension: 0
+                            yAxisID: 'temperature-axis'
+                            datalabels:
+                                color: COLORS.purple
+                                align: 'end'
+                        highs =
+                            label: 'Highs'
+                            backgroundColor: COLORS.red
+                            borderColor: COLORS.red
+                            data: dataDaily.temperatureMax
+                            fill: false
+                            lineTension: 0
+                            yAxisID: 'temperature-axis'
+                            datalabels:
+                                color: COLORS.red
+                                align: 'end'
+                        lows =
+                            label: 'Lows'
+                            backgroundColor: COLORS.blue
+                            borderColor: COLORS.blue
+                            data: dataDaily.temperatureMin
+                            fill: false
+                            lineTension: 0
+                            yAxisID: 'temperature-axis'
+                            datalabels:
+                                color: COLORS.blue
+                                align: 'start'
+                                display: 'true'
+                        prec =
+                            type: 'bar'
+                            label: 'Prec. %'
+                            backgroundColor: COLORS.lightblue
+                            borderColor: COLORS.lightblue
+                            data: dataDaily.precipProbability
+                            fill: false
+                            yAxisID: 'percent-axis'
+                            datalabels:
+                                color: COLORS.gray
+                                align: 'end'
+                                anchor: 'start'
+                                formatter: (n) ->
+                                    Math.round(n) + '%'
+                    ]
+                # Configuration options go here
+                options:
+                    responsive: true
+                    layout:
+                        padding: 15
+                    legend:
+                        position: 'bottom'
+                    plugins:
+                        datalabels:
+                            display: 'auto'
+                            formatter: Math.round
+                            padding: 1
+                            font:
+                                weight: '900'
+                    scales:
+                        xAxes: [
+                            axis =
+                                display: false
+                                position: 'top'
+                        ]
+                        yAxes: [
+                            axis =
+                                id: 'temperature-axis'
+                                display: false
+                                type: 'linear'
+                                position: 'left'
+
+                            axis =
+                                type: 'linear'
+                                display: false
+                                position: 'right'
+                                ticks:
+                                    min: 0
+                                    max: 100
+                                id: 'percent-axis'
+                                gridLines:
+                                    drawOnChartArea: false
+                        ]
         chart = makeChart '#chart .chartist', sliceData(jq.extend(true, {}, fdata), 5)
         wideChart = makeChart '#wide-chart .chartist', fdata
+
+        chart1 = makeChartJs canvas1, dataCurrently, dataDaily
 </script>
 
 <template lang=pug>
@@ -198,7 +350,8 @@ main
                     div.template
                         div.icon
                         div.label
-                div.chartist.ct-chart.ct-golden-section.simple
+                div.chartist.ct-chart.ct-golden-section.simple.hidden
+                div(style='padding: 15px'): canvas(bind:this='{canvas1}')
 
         .view.landscape
             #wide-chart
