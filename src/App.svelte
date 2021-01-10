@@ -111,12 +111,25 @@
             chart.update sliceData(jq.extend(true, {}, fdata), 5)
             wideChart.update fdata
 
+            chart1.data.datasets = datasetsF
+            chart1.update()
+
+            chart2.data.datasets = datasetsF
+            chart2.update()
+
+
         jq('.fahrenheit').click (e) ->
             e.preventDefault()
             jq('.celsius').removeClass 'hidden'
             jq('.fahrenheit').addClass 'hidden'
             chart.update sliceData(jq.extend(true, {}, cdata), 5)
             wideChart.update cdata
+
+            chart1.data.datasets = datasetsC
+            chart1.update()
+
+            chart2.data.datasets = datasetsC
+            chart2.update()
 
         jq('.chartist').click (e) ->
             e.preventDefault()
@@ -208,12 +221,6 @@
             temperatureMin: temperatureMin
             temperatureMax: temperatureMax
 
-        dataDaily5 =
-            labels: labels[...5]
-            precipProbability: precipProbability[...5]
-            temperatureMin: temperatureMin[...5]
-            temperatureMax: temperatureMax[...5]
-
         console.log 'dataDaily'
         console.log dataDaily
 
@@ -225,7 +232,65 @@
         console.log dataCurrently
         console.log canvas1
 
-        makeChartJs =  (canvas, dataCurrently, dataDaily, aspectRatio=2, maintainAspectRatio=true)  ->
+        datasetsF = [
+            currently =
+                label: 'Current'
+                backgroundColor: COLORS.purple
+                borderColor: COLORS.purple
+                data: dataCurrently.temperature
+                fill: false
+                lineTension: 0
+                yAxisID: 'temperature-axis'
+                datalabels:
+                    color: COLORS.purple
+                    align: 'end'
+            highs =
+                label: 'Highs'
+                backgroundColor: COLORS.red
+                borderColor: COLORS.red
+                data: dataDaily.temperatureMax
+                fill: false
+                lineTension: 0
+                yAxisID: 'temperature-axis'
+                datalabels:
+                    color: COLORS.red
+                    align: 'end'
+            lows =
+                label: 'Lows'
+                backgroundColor: COLORS.blue
+                borderColor: COLORS.blue
+                data: dataDaily.temperatureMin
+                fill: false
+                lineTension: 0
+                yAxisID: 'temperature-axis'
+                datalabels:
+                    color: COLORS.blue
+                    align: 'start'
+                    display: 'true'
+            prec =
+                type: 'bar'
+                label: 'Prec. %'
+                backgroundColor: COLORS.lightblue
+                borderColor: COLORS.lightblue
+                data: dataDaily.precipProbability
+                fill: false
+                yAxisID: 'percent-axis'
+                datalabels:
+                    color: COLORS.gray
+                    align: 'end'
+                    anchor: 'start'
+                    formatter: (n) ->
+                        Math.round(n) + '%'
+        ]
+
+        datasetsC = []
+        for dataset,i in datasetsF
+            item = Object.assign {}, dataset
+            if dataset.yAxisID is 'temperature-axis'
+                item.data = item.data.map celsius
+            datasetsC[i] = item
+
+        makeChartJs =  (canvas, labels, datasets, aspectRatio=2, maintainAspectRatio=true)  ->
             ctx = canvas.getContext('2d')
 
             chart = new Chart ctx, options =
@@ -233,59 +298,11 @@
                 type: 'line'
                 # The data for our dataset
                 data:
-                    labels: dataDaily.labels
-                    datasets: [
-                        currently =
-                            label: 'Current'
-                            backgroundColor: COLORS.purple
-                            borderColor: COLORS.purple
-                            data: dataCurrently.temperature
-                            fill: false
-                            lineTension: 0
-                            yAxisID: 'temperature-axis'
-                            datalabels:
-                                color: COLORS.purple
-                                align: 'end'
-                        highs =
-                            label: 'Highs'
-                            backgroundColor: COLORS.red
-                            borderColor: COLORS.red
-                            data: dataDaily.temperatureMax
-                            fill: false
-                            lineTension: 0
-                            yAxisID: 'temperature-axis'
-                            datalabels:
-                                color: COLORS.red
-                                align: 'end'
-                        lows =
-                            label: 'Lows'
-                            backgroundColor: COLORS.blue
-                            borderColor: COLORS.blue
-                            data: dataDaily.temperatureMin
-                            fill: false
-                            lineTension: 0
-                            yAxisID: 'temperature-axis'
-                            datalabels:
-                                color: COLORS.blue
-                                align: 'start'
-                                display: 'true'
-                        prec =
-                            type: 'bar'
-                            label: 'Prec. %'
-                            backgroundColor: COLORS.lightblue
-                            borderColor: COLORS.lightblue
-                            data: dataDaily.precipProbability
-                            fill: false
-                            yAxisID: 'percent-axis'
-                            datalabels:
-                                color: COLORS.gray
-                                align: 'end'
-                                anchor: 'start'
-                                formatter: (n) ->
-                                    Math.round(n) + '%'
-                    ]
+                    labels: labels
+                    datasets: datasets
                 # Configuration options go here
                 options:
+                    animation: false
                     responsive: true
                     aspectRatio: aspectRatio
                     maintainAspectRatio: maintainAspectRatio
@@ -312,7 +329,6 @@
                                 display: false
                                 type: 'linear'
                                 position: 'left'
-
                             axis =
                                 type: 'linear'
                                 display: false
@@ -327,8 +343,8 @@
         chart = makeChart '#chart .chartist', sliceData(jq.extend(true, {}, fdata), 5)
         wideChart = makeChart '#wide-chart .chartist', fdata
 
-        chart1 = makeChartJs canvas1, dataCurrently, dataDaily5
-        chart2 = makeChartJs canvas2, dataCurrently, dataDaily, 3, true
+        chart1 = makeChartJs canvas1, dataDaily.labels[...5], datasetsF
+        chart2 = makeChartJs canvas2, dataDaily.labels,       datasetsF, 3, true
 </script>
 
 <template lang=pug>
