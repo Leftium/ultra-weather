@@ -225,7 +225,7 @@
         console.log dataCurrently
         console.log canvas1
 
-        makeChartJs =  (canvas, dataCurrently, dataDaily) ->
+        makeChartJs =  (canvas, dataCurrently, dataDaily, aspectRatio=2, maintainAspectRatio=true)  ->
             ctx = canvas.getContext('2d')
 
             chart = new Chart ctx, options =
@@ -287,8 +287,8 @@
                 # Configuration options go here
                 options:
                     responsive: true
-                    aspectRatio: 3
-                    maintainAspectRatio: true
+                    aspectRatio: aspectRatio
+                    maintainAspectRatio: maintainAspectRatio
                     layout:
                         padding: 15
                     legend:
@@ -328,7 +328,7 @@
         wideChart = makeChart '#wide-chart .chartist', fdata
 
         chart1 = makeChartJs canvas1, dataCurrently, dataDaily5
-        chart2 = makeChartJs canvas2, dataCurrently, dataDaily
+        chart2 = makeChartJs canvas2, dataCurrently, dataDaily, 3, true
 </script>
 
 <template lang=pug>
