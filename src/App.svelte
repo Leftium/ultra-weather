@@ -237,17 +237,20 @@
                 label: 'Current'
                 backgroundColor: COLORS.purple
                 borderColor: COLORS.purple
+                pointRadius: 6
                 data: dataCurrently.temperature
                 fill: false
                 lineTension: 0
                 yAxisID: 'temperature-axis'
                 datalabels:
+                    display: false
                     color: COLORS.purple
                     align: 'end'
             highs =
                 label: 'Highs'
                 backgroundColor: COLORS.red
                 borderColor: COLORS.red
+                borderWidth: 4
                 data: dataDaily.temperatureMax
                 fill: false
                 lineTension: 0
@@ -259,6 +262,7 @@
                 label: 'Lows'
                 backgroundColor: COLORS.blue
                 borderColor: COLORS.blue
+                borderWidth: 4
                 data: dataDaily.temperatureMin
                 fill: false
                 lineTension: 0
