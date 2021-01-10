@@ -20,6 +20,7 @@
         gray: '#586e75'
 
     canvas1 = null
+    canvas2 = null
 
     initData = () ->
         makeSeries = (name) ->
@@ -188,7 +189,7 @@
         temperatureMin = []
         temperatureMax = []
 
-        for dailyData,i in data.daily when i < 5
+        for dailyData,i in data.daily
             jsDate = dayjs.unix dailyData.time
             if jsDate.isSame now, 'day'
                 labels.push "Today"
@@ -206,6 +207,12 @@
             precipProbability: precipProbability
             temperatureMin: temperatureMin
             temperatureMax: temperatureMax
+
+        dataDaily5 =
+            labels: labels[...5]
+            precipProbability: precipProbability[...5]
+            temperatureMin: temperatureMin[...5]
+            temperatureMax: temperatureMax[...5]
 
         console.log 'dataDaily'
         console.log dataDaily
@@ -280,6 +287,8 @@
                 # Configuration options go here
                 options:
                     responsive: true
+                    aspectRatio: 3
+                    maintainAspectRatio: true
                     layout:
                         padding: 15
                     legend:
@@ -318,7 +327,8 @@
         chart = makeChart '#chart .chartist', sliceData(jq.extend(true, {}, fdata), 5)
         wideChart = makeChart '#wide-chart .chartist', fdata
 
-        chart1 = makeChartJs canvas1, dataCurrently, dataDaily
+        chart1 = makeChartJs canvas1, dataCurrently, dataDaily5
+        chart2 = makeChartJs canvas2, dataCurrently, dataDaily
 </script>
 
 <template lang=pug>
@@ -361,7 +371,8 @@ main
                     div.template
                         div.icon
                         div.label
-                div.chartist.ct-major-twelfth.simple
+                div.chartist.ct-major-twelfth.simple.hidden
+                div(style='padding: 15px'): canvas(bind:this='{canvas2}')
 
 </template>
 
