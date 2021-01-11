@@ -299,6 +299,15 @@
                 value = "#{value.toFixed(1)}".padStart 6, ' '
                 return "#{value}: #{label}"
 
+
+        Chart.Tooltip.positioners.top = (elements, eventPosition) ->
+            point = Chart.Tooltip.positioners.nearest elements, eventPosition
+
+            result =
+                x: point.x
+                y: 0
+
+
         makeChartJs =  (canvas, labels, datasets, aspectRatio=2, maintainAspectRatio=true)  ->
             ctx = canvas.getContext('2d')
 
@@ -313,6 +322,7 @@
                 options:
                     tooltips:
                         mode: 'index'
+                        position: 'top'
                         intersect: false
                         bodyFontFamily: 'Lucida Console, Courier, monospace'
                         callbacks:
@@ -362,9 +372,6 @@
 
 <template lang=pug>
 main
-    // p: a(href=".netlify/functions/serverless") serverless
-    // pre {JSON.stringify(fdata, null, 4)}
-
     +await('data then data')
         .view.portrait
             div#currently.flex-top.flex-vertical
@@ -393,8 +400,8 @@ main
 
         .view.landscape
             #wide-chart
-                h1.center.location {data.location || 'loading...'}
-                div.center#summary
+                h1.center.toggle-fc.location {data.location || 'loading...'}
+                div.center.toggle-fc#summary
                 div#daily.flex-container.space-between.toggle-fc
                     div.template
                         div.icon
