@@ -100,7 +100,7 @@ exports.handler = (event, context) ->
     data[0].daily.data.forEach (data) ->
         results.daily.push extractFields(data)
 
-    console.log results
+    # console.log results
 
     return await value =  # `await` needed to force async function.
         statusCode: 200,
