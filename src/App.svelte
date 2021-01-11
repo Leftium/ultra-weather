@@ -67,11 +67,6 @@
         Math.round t
 
 
-    temperatureDiv = (f, div) ->
-        c = celsius f
-        div.html jq('<span>').addClass('fahrenheit').html("#{Math.round f}&deg;F")
-        div.append jq('<span>').addClass('celsius').html("#{Math.round c}&deg;C")
-
     onMount () ->
         data = await data
         console.log data
@@ -221,15 +216,6 @@
 
         await tick()
 
-        $currently = jq('#currently').attr 'title', data.summary
-
-        $currently.find('.summary').html data.currently.summary
-
-        img = "https://darksky.net/images/weather-icons/#{data.currently.icon}.png"
-        $currently.find('div.icon').append("<img src=#{img}>")
-
-        jq('#summary').html data.summary
-
         jq('.toggle-fc').click (e) ->
             e.preventDefault()
 
@@ -374,7 +360,7 @@
 main
     +await('data then data')
         .view.portrait
-            div#currently.flex-top.flex-vertical
+            div#currently.flex-top.flex-vertical(title='{data.summary}')
                 #links-container.flex-top.flex-container
                     #links
                         a(href="https://darksky.net/forecast/{data.latitude},{data.longitude}/") Full DarkSky Forecast
@@ -383,6 +369,7 @@ main
                         h1: span.location {data.location || 'loading...'}
                     div.icon-and-temperature.flex-item.flex-container.center
                         div.icon.toggle-fc
+                            img(src='https://darksky.net/images/weather-icons/{data.currently.icon}.png')
                         div.temperature.toggle-fc {@html displayTemperature}
                     div.flex-item.flex-container.center.toggle-fc
                         span.summary
@@ -401,7 +388,7 @@ main
         .view.landscape
             #wide-chart
                 h1.center: span.toggle-fc.location {data.location || 'loading...'}
-                div.center: span.toggle-fc#summary
+                div.center: span.toggle-fc {data.summary}
                 div#daily.flex-container.space-between.toggle-simple
                     div.template
                         div.icon
