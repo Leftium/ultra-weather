@@ -104,6 +104,14 @@
         return data
     data = getData()
 
+    makeColorScript = (color1, color2) ->
+        (context) ->
+            index = context.dataIndex
+            if index < 2
+                color1
+            else
+                color2
+
     onMount () ->
         data = await data
 
@@ -169,20 +177,22 @@
                 label: 'High'
                 backgroundColor: COLORS.red
                 borderColor: COLORS.red
+                pointBorderColor: makeColorScript COLORS.lightred, COLORS.red
                 borderWidth: 4
                 data: dataDaily.temperatureMax
                 yAxisID: 'temperature-axis'
                 datalabels:
-                    color: COLORS.red
+                    color: makeColorScript COLORS.lightred, COLORS.red
             dsLows =
                 label: 'Low'
                 backgroundColor: COLORS.blue
                 borderColor: COLORS.blue
+                pointBorderColor: makeColorScript COLORS.lightblue, COLORS.blue
                 borderWidth: 4
                 data: dataDaily.temperatureMin
                 yAxisID: 'temperature-axis'
                 datalabels:
-                    color: COLORS.blue
+                    color: makeColorScript COLORS.lightblue, COLORS.blue
                     align: 'start'
                     display: 'true'
             dsHighsApparent =
