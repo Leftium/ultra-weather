@@ -315,47 +315,62 @@
 
 <template lang=pug>
 main(on:click='{ensureToolTipClosed}' on:touchstart='{ensureToolTipClosed}')
-    +await('data then data')
-        .view.portrait
-            div#currently.flex-top.flex-vertical(title='{data.summary}')
-                .forecast.flex-bottom.flex-vertical
-                    div.flex-item.flex-container.center
-                        h1.center: span.location {data.location}
-                    div.icon-and-temperature.flex-item.flex-container.center
-                        div.icon(on:click='{toggleUnits}')
-                            img(src='{ICON_URL_BASE}{data.currently.icon}.png')
-                        div.temperature(on:click='{toggleUnits}') {@html displayTemperature}
-                    div.flex-item.flex-container.center.margin-bottom(on:click='{toggleUnits}')
-                        span {data.currently.summary}.&nbsp;
-                        span Feels like&nbsp;{@html displayTemperatureApparent}
+    +await('data')
+        div.center-container
+            p: img(src='loader.gif')
+        +then('data')
+            .view.portrait
+                div#currently.flex-top.flex-vertical(title='{data.summary}')
+                    .forecast.flex-bottom.flex-vertical
+                        div.flex-item.flex-container.center
+                            h1.center: span.location {data.location}
+                        div.icon-and-temperature.flex-item.flex-container.center
+                            div.icon(on:click='{toggleUnits}')
+                                img(src='{ICON_URL_BASE}{data.currently.icon}.png')
+                            div.temperature(on:click='{toggleUnits}') {@html displayTemperature}
+                        div.flex-item.flex-container.center.margin-bottom(on:click='{toggleUnits}')
+                            span {data.currently.summary}.&nbsp;
+                            span Feels like&nbsp;{@html displayTemperatureApparent}
 
-            #chart.flex-bottom
-                div#daily.flex-container.space-between(on:click='{toggleSimple}')
-                    +each('data.daily.slice(0,5) as day,i')
-                        div(class='day-{i}' title='{data.daily[i].summary}')
-                            div.icon: img(src='https://darksky.net/images/weather-icons/{day.icon}.png')
-                            div.label {data.labels[i]}
-                div.flex-item.flex-container.center: hr
-                div.chart: canvas(bind:this='{canvas1}')
-                #links-container.flex-top.flex-container
-                    #links
-                        a(href="https://darksky.net/forecast/{data.latitude},{data.longitude}/") Full DarkSky Forecast
+                #chart.flex-bottom
+                    div#daily.flex-container.space-between(on:click='{toggleSimple}')
+                        +each('data.daily.slice(0,5) as day,i')
+                            div(class='day-{i}' title='{data.daily[i].summary}')
+                                div.icon: img(src='https://darksky.net/images/weather-icons/{day.icon}.png')
+                                div.label {data.labels[i]}
+                    div.flex-item.flex-container.center: hr
+                    div.chart: canvas(bind:this='{canvas1}')
+                    #links-container.flex-top.flex-container
+                        #links
+                            a(href="https://darksky.net/forecast/{data.latitude},{data.longitude}/") Full DarkSky Forecast
 
-        .view.landscape
-            #wide-chart
-                h1.center: span.location(on:click='{toggleUnits}') {data.location}
-                div.center.margin-bottom: span(on:click='{toggleUnits}') {data.summary}
-                div#daily.flex-container.space-between(on:click='{toggleSimple}')
-                    +each('data.daily as day,i')
-                        div(class='day-{i}' title='{data.daily[i].summary}')
-                            div.icon: img(src='https://darksky.net/images/weather-icons/{day.icon}.png')
-                            div.label {data.labels[i]}
-                div.flex-item.flex-container.center: hr
-                div.chart: canvas(bind:this='{canvas2}')
+            .view.landscape
+                #wide-chart
+                    h1.center: span.location(on:click='{toggleUnits}') {data.location}
+                    div.center.margin-bottom: span(on:click='{toggleUnits}') {data.summary}
+                    div#daily.flex-container.space-between(on:click='{toggleSimple}')
+                        +each('data.daily as day,i')
+                            div(class='day-{i}' title='{data.daily[i].summary}')
+                                div.icon: img(src='https://darksky.net/images/weather-icons/{day.icon}.png')
+                                div.label {data.labels[i]}
+                    div.flex-item.flex-container.center: hr
+                    div.chart: canvas(bind:this='{canvas2}')
 
 </template>
 
 <style>
+    main {
+        height: 100%;
+    }
+    .center-container {
+        height: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    .center-container p {
+        margin: 0;
+    }
     *:not(input):not(textarea) {
         user-select: none;
     }
