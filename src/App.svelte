@@ -339,12 +339,9 @@ main
     +await('data then data')
         .view.portrait
             div#currently.flex-top.flex-vertical(title='{data.summary}')
-                #links-container.flex-top.flex-container
-                    #links
-                        a(href="https://darksky.net/forecast/{data.latitude},{data.longitude}/") Full DarkSky Forecast
                 .forecast.flex-bottom.flex-vertical
                     div.flex-item.flex-container.center
-                        h1: span.location {data.location}
+                        h1.center: span.location {data.location}
                     div.icon-and-temperature.flex-item.flex-container.center
                         div.icon.toggle-fc
                             img(src='{ICON_URL_BASE}{data.currently.icon}.png')
@@ -360,7 +357,9 @@ main
                         div.label
                 div.flex-item.flex-container.center: hr
                 div.chart: canvas(bind:this='{canvas1}')
-
+                #links-container.flex-top.flex-container
+                    #links
+                        a(href="https://darksky.net/forecast/{data.latitude},{data.longitude}/") Full DarkSky Forecast
 
         .view.landscape
             #wide-chart
@@ -389,7 +388,7 @@ main
         .landscape { display: block; }
     }
 
-    #wide-chart h1 {
+    h1 {
         margin: 0;
     }
 
@@ -427,10 +426,6 @@ main
     .space-between {
         -webkit-justify-content: space-between;
         justify-content: space-between;
-    }
-
-    .portrait {
-        margin-top: 8px;
     }
 
     hr {
@@ -471,7 +466,7 @@ main
         position: fixed;
         top: 0; bottom: 0;
         left: 0; right: 0;
-        padding: 8;
+        padding: 8px;
     }
 
     :global(#currently div.icon) {
