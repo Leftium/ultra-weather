@@ -15,6 +15,11 @@
 <body>
     <style>
         #loader {
+            position: fixed;
+            top: 0; bottom: 0;
+            left: 0; right: 0;
+        }
+        #loader div {
             height: 100%;
             display: flex;
             align-items: center;
@@ -25,6 +30,8 @@
             margin: 0;
         }
     </style>
-    <img id='loader' src='loader.gif'>
+    <div id='loader'>
+        <div>
+            <img src='loader.gif'>
 </body>
 </html>
