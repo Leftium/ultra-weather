@@ -447,6 +447,12 @@ main(on:click='{ensureToolTipClosed}' on:touchstart='{ensureToolTipClosed}')
       font-size: 60px;
     }
 
+    /* Historical weather */
+    :global(.day-0 .icon),
+    :global(.day-1 .icon) {
+        opacity: .44;
+    }
+
     /* Today */
     :global(.day-2) {
         font-weight: bold;
