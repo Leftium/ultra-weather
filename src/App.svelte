@@ -11,13 +11,24 @@
 
     COLORS =
         red: '#dc322f'
+        lightred: '#dc322f44'
         blue: '#268bd2'
         lightblue: '#268bd244'
         purple: '#6c71c4'
+        lightpurple: '#6c71c444'
         gray: '#586e75'
 
     canvas1 = null
     canvas2 = null
+
+    mode = 'f'  # F/C temperature mode.
+
+    showApparentTemps = false
+
+    ## Make these references to datasets global so we can easily modify them.
+    dsHighsApparent = null
+    dsLowsApparent = null
+    dsCurrentlyApparent = null
 
     getData = () ->
         url = '/.netlify/functions/serverless'
@@ -39,6 +50,7 @@
 
     onMount () ->
         data = await data
+        console.log data
         now = dayjs()
 
         labels = []
@@ -46,6 +58,9 @@
         temperature = []
         temperatureMin = []
         temperatureMax = []
+        apparentMin = []
+        apparentMax = []
+
 
         for dailyData,i in data.daily
             jsDate = dayjs.unix dailyData.time
@@ -60,19 +75,28 @@
             temperatureMin.push dailyData.temperatureMin
             temperatureMax.push dailyData.temperatureMax
 
+            apparentMin.push    dailyData.apparentTemperatureMin
+            apparentMax.push    dailyData.apparentTemperatureMax
+
         dataDaily =
             labels: labels
             precipProbability: precipProbability
             temperatureMin: temperatureMin
             temperatureMax: temperatureMax
+            apparentMin:    apparentMin
+            apparentMax:    apparentMax
 
 
         dataCurrently =
             labels: ['', '', 'Temperature']
             temperature: [NaN, NaN, data.currently.temperature]
 
+        dataCurrentlyApparent =
+            labels: ['', '', 'Temperature']
+            temperature: [NaN, NaN, data.currently.apparentTemperature]
+
         datasetsF = [
-            currently =
+            dsCurrently =
                 label: 'Current'
                 backgroundColor: COLORS.purple
                 borderColor: COLORS.purple
@@ -85,7 +109,21 @@
                     display: false
                     color: COLORS.purple
                     align: 'end'
-            highs =
+            dsCurrentlyApparent =
+                label: 'Current (Apparent)'
+                showLine: false
+                backgroundColor: COLORS.lightpurple
+                borderColor: COLORS.lightpurple
+                pointRadius: 0
+                data: dataCurrentlyApparent.temperature
+                fill: false
+                lineTension: 0
+                yAxisID: 'temperature-axis'
+                datalabels:
+                    display: false
+                    color: COLORS.lightpurple
+                    align: 'end'
+            dsHighs =
                 label: 'Highs'
                 backgroundColor: COLORS.red
                 borderColor: COLORS.red
@@ -97,7 +135,7 @@
                 datalabels:
                     color: COLORS.red
                     align: 'end'
-            lows =
+            dsLows =
                 label: 'Lows'
                 backgroundColor: COLORS.blue
                 borderColor: COLORS.blue
@@ -110,7 +148,33 @@
                     color: COLORS.blue
                     align: 'start'
                     display: 'true'
-            prec =
+            dsHighsApparent =
+                label: 'Apparent Highs'
+                showLine: false
+                backgroundColor: COLORS.lightred
+                borderColor: COLORS.lightred
+                borderWidth: 4
+                pointRadius: 0
+                data: dataDaily.apparentMax
+                fill: false
+                lineTension: 0
+                yAxisID: 'temperature-axis'
+                datalabels:
+                    display: false
+            dsLowsApparent =
+                label: 'Apparent Lows'
+                showLine: false
+                backgroundColor: COLORS.lightblue
+                borderColor: COLORS.lightblue
+                borderWidth: 4
+                pointRadius: 0
+                data: dataDaily.apparentMin
+                fill: false
+                lineTension: 0
+                yAxisID: 'temperature-axis'
+                datalabels:
+                    display: false
+            dsPrec =
                 type: 'bar'
                 label: 'Prec. %'
                 backgroundColor: COLORS.lightblue
@@ -146,6 +210,8 @@
             jq('.fahrenheit').removeClass 'hidden'
             jq('.celsius').addClass 'hidden'
 
+            mode = 'f'
+
             chart1.options.plugins.datalabels.formatter = formatterF
             chart1.update()
 
@@ -158,15 +224,26 @@
             jq('.celsius').removeClass 'hidden'
             jq('.fahrenheit').addClass 'hidden'
 
+            mode = 'c'
+
             chart1.options.plugins.datalabels.formatter = formatterC
             chart1.update()
 
             chart2.options.plugins.datalabels.formatter = formatterC
             chart2.update()
 
-        jq('.chartist').click (e) ->
+        jq('.chart').click (e) ->
             e.preventDefault()
-            jq('.chartist').toggleClass 'simple'
+            showApparentTemps = !showApparentTemps
+
+            dsHighsApparent.showLine = showApparentTemps
+            dsLowsApparent.showLine = showApparentTemps
+
+            dsCurrentlyApparent.pointRadius = if showApparentTemps then 6 else 0
+
+            chart1.update()
+            chart2.update()
+
 
 
         list = (day.icon for day in data.daily)
@@ -299,7 +376,7 @@ main
                     div.template
                         div.icon
                         div.label
-                div(style='padding: 15px'): canvas(bind:this='{canvas2}')
+                div.chart(style='padding: 15px'): canvas(bind:this='{canvas2}')
 
 </template>
 
