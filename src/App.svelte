@@ -316,7 +316,7 @@
 <template lang=pug>
 main(on:click='{ensureToolTipClosed}' on:touchstart='{ensureToolTipClosed}')
     +await('data')
-        div.center-container
+        div.center-container.loader
             p: img(src='loader.gif')
         +then('data')
             .view.portrait
@@ -359,6 +359,9 @@ main(on:click='{ensureToolTipClosed}' on:touchstart='{ensureToolTipClosed}')
 </template>
 
 <style>
+    .loader {
+        opacity: .1;
+    }
     main {
         height: 100%;
     }
