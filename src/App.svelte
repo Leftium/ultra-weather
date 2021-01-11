@@ -332,10 +332,19 @@
                         ]
         chart1 = makeChartJs canvas1, dataDaily.labels[...5], datasetsF
         chart2 = makeChartJs canvas2, dataDaily.labels,       datasetsF, 3, true
+
+    ensureToolTipClosed = (e) ->
+        console.log 'ensureToolTipClosed'
+        if not e.target.$chartjs
+            console.log 'not chart'
+            canvas1.dispatchEvent(new MouseEvent 'mouseout')
+            canvas2.dispatchEvent(new MouseEvent 'mouseout')
+        else
+            console.log 'chart'
 </script>
 
 <template lang=pug>
-main
+main(on:click='{ensureToolTipClosed}' on:touchstart='{ensureToolTipClosed}')
     +await('data then data')
         .view.portrait
             div#currently.flex-top.flex-vertical(title='{data.summary}')
