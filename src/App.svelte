@@ -376,26 +376,123 @@ main
 </template>
 
 <style>
-    .portrait {
-        margin-top: 8px;
-    }
     *:not(input):not(textarea) {
         user-select: none;
     }
+
+    @media (max-aspect-ratio: 12/10 ) {
+        .portrait { display: block; }
+        .landscape { display: none; }
+    }
+    @media (min-aspect-ratio: 12/10) {
+        .portrait { display: none; }
+        .landscape { display: block; }
+    }
+
+    #wide-chart h1 {
+        margin: 0;
+    }
+
+    .flex-container {
+        padding: 0;
+        margin: 0 8px;
+        list-style: none;
+
+        -ms-box-orient: horizontal;
+        display: flex;
+    }
+
+    .flex-vertical {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .flex-item {
+        flex-basis: auto;
+    }
+
+    .flex-top {
+        flex-basis: auto;
+
+    }
+    .flex-bottom {
+        flex-grow: 1;
+    }
+
+    .center {
+        -webkit-justify-content: center;
+        justify-content: center;
+    }
+
+    .space-between {
+        -webkit-justify-content: space-between;
+        justify-content: space-between;
+    }
+
+    .portrait {
+        margin-top: 8px;
+    }
+
     hr {
         border-top: 1px solid #eee8d5;
         width: 100%;
     }
+
     .margin-bottom {
         margin-bottom: 20px;
     }
-    #wide-chart h1 {
-        margin: 0;
-    }
+
     .chart {
         padding: 15px;
     }
     .center {
         text-align: center;
+    }
+
+    #currently .temperature {
+      display: inline-block;
+      font-size: 60px;
+    }
+
+    /* Today */
+    :global(.day-2) {
+        font-weight: bold;
+    }
+
+    #links {
+        margin: auto;
+    }
+
+    .location {
+        margin: 15px;
+    }
+
+    .view {
+        position: fixed;
+        top: 0; bottom: 0;
+        left: 0; right: 0;
+        padding: 8;
+    }
+
+    :global(#currently div.icon) {
+        width: 64px;
+        height: 64px;
+        display: inline-block;
+    }
+
+    :global(div.icon) {
+        margin-bottom: 0px;
+        min-width: 40px;
+    }
+
+    :global(.icon) {
+        width: 40px;
+        height: 40px;
+    }
+
+    :global(div.icon img),
+    :global(.icon img) {
+        width: 100%;
+        object-fit: contain;
     }
 </style>
