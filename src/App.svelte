@@ -293,7 +293,7 @@
                 value = celsius(value)
 
             if yAxisID is 'percent-axis'
-                value = "#{value}".padStart 6, ' '
+                value = "#{Math.round value}".padStart 6, ' '
                 return "#{value}% Chance of precipitation"
             else
                 value = "#{value.toFixed(1)}".padStart 6, ' '
