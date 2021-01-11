@@ -97,7 +97,7 @@
 
         datasetsF = [
             dsCurrently =
-                label: 'Current'
+                label: 'Temperature'
                 backgroundColor: COLORS.purple
                 borderColor: COLORS.purple
                 pointRadius: 6
@@ -110,7 +110,7 @@
                     color: COLORS.purple
                     align: 'end'
             dsCurrentlyApparent =
-                label: 'Current (Apparent)'
+                label: 'Temperature (Apparent)'
                 showLine: false
                 backgroundColor: COLORS.lightpurple
                 borderColor: COLORS.lightpurple
@@ -124,7 +124,7 @@
                     color: COLORS.lightpurple
                     align: 'end'
             dsHighs =
-                label: 'Highs'
+                label: 'High'
                 backgroundColor: COLORS.red
                 borderColor: COLORS.red
                 borderWidth: 4
@@ -136,7 +136,7 @@
                     color: COLORS.red
                     align: 'end'
             dsLows =
-                label: 'Lows'
+                label: 'Low'
                 backgroundColor: COLORS.blue
                 borderColor: COLORS.blue
                 borderWidth: 4
@@ -149,7 +149,7 @@
                     align: 'start'
                     display: 'true'
             dsHighsApparent =
-                label: 'Apparent Highs'
+                label: 'High (Apparent)'
                 showLine: false
                 backgroundColor: COLORS.lightred
                 borderColor: COLORS.lightred
@@ -162,7 +162,7 @@
                 datalabels:
                     display: false
             dsLowsApparent =
-                label: 'Apparent Lows'
+                label: 'Low  (Apparent)'
                 showLine: false
                 backgroundColor: COLORS.lightblue
                 borderColor: COLORS.lightblue
@@ -183,6 +183,7 @@
                 fill: false
                 yAxisID: 'percent-axis'
                 datalabels:
+                    display: false
                     color: COLORS.gray
                     align: 'end'
                     anchor: 'start'
@@ -278,6 +279,20 @@
 
         $template.remove()
 
+        toolTipsLabelCallback = (tooltipItem, data) ->
+            yAxisID = data.datasets[tooltipItem.datasetIndex].yAxisID
+            label = data.datasets[tooltipItem.datasetIndex].label or ''
+            value = Number.parseFloat tooltipItem.value, 10
+
+            if yAxisID is 'temperature-axis' and mode is 'c'
+                value = celsius(value)
+
+            if yAxisID is 'percent-axis'
+                value = "#{value}".padStart 6, ' '
+                return "#{value}% Chance of precipitation"
+            else
+                value = "#{value.toFixed(1)}".padStart 6, ' '
+                return "#{value}: #{label}"
 
         makeChartJs =  (canvas, labels, datasets, aspectRatio=2, maintainAspectRatio=true)  ->
             ctx = canvas.getContext('2d')
@@ -294,6 +309,9 @@
                     tooltips:
                         mode: 'index'
                         intersect: false
+                        bodyFontFamily: 'Lucida Console, Courier, monospace'
+                        callbacks:
+                            label: toolTipsLabelCallback
                     animation: false
                     responsive: true
                     aspectRatio: aspectRatio
