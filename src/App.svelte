@@ -28,6 +28,10 @@
 
     celsius = (f) -> 5/9 * (f - 32)
 
+    formatterF = Math.round
+    formatterC = (n) -> formatterF celsius(n)
+
+
     temperatureDiv = (f, div) ->
         c = celsius f
         div.html jq('<span>').addClass('fahrenheit').html("#{Math.round f}&deg;F")
@@ -122,14 +126,6 @@
                         Math.round(n) + '%'
         ]
 
-        datasetsC = []
-        for dataset,i in datasetsF
-            item = Object.assign {}, dataset
-            if dataset.yAxisID is 'temperature-axis'
-                item.data = item.data.map celsius
-            datasetsC[i] = item
-
-
         await tick()
 
         $currently = jq('#currently').attr 'title', data.summary
@@ -150,10 +146,10 @@
             jq('.fahrenheit').removeClass 'hidden'
             jq('.celsius').addClass 'hidden'
 
-            chart1.data.datasets = datasetsF
+            chart1.options.plugins.datalabels.formatter = formatterF
             chart1.update()
 
-            chart2.data.datasets = datasetsF
+            chart2.options.plugins.datalabels.formatter = formatterF
             chart2.update()
 
 
@@ -162,10 +158,10 @@
             jq('.celsius').removeClass 'hidden'
             jq('.fahrenheit').addClass 'hidden'
 
-            chart1.data.datasets = datasetsC
+            chart1.options.plugins.datalabels.formatter = formatterC
             chart1.update()
 
-            chart2.data.datasets = datasetsC
+            chart2.options.plugins.datalabels.formatter = formatterC
             chart2.update()
 
         jq('.chartist').click (e) ->
@@ -230,7 +226,7 @@
                     plugins:
                         datalabels:
                             display: 'auto'
-                            formatter: Math.round
+                            formatter: formatterF
                             padding: 1
                             font:
                                 weight: '900'
