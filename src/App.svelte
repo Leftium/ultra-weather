@@ -214,6 +214,9 @@
                     datasets: datasets
                 # Configuration options go here
                 options:
+                    tooltips:
+                        mode: 'index'
+                        intersect: false
                     animation: false
                     responsive: true
                     aspectRatio: aspectRatio
