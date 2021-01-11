@@ -9,6 +9,8 @@
     import Chart from 'chart.js'
     import ChartDataLabels from 'chartjs-plugin-datalabels'
 
+    ICON_URL_BASE = 'https://darksky.net/images/weather-icons/'
+
     COLORS =
         red: '#dc322f'
         lightred: '#dc322f44'
@@ -34,7 +36,7 @@
     temperatureApparent = 0
     displayTemperature = ''
     displayTemperatureApparent = ''
-    ```$: {```
+    ```$: {```  ## Start Svelte reactive block.
 
     if mode is 'c'
         convertedTemperature = celsius temperature
@@ -47,7 +49,7 @@
 
     displayTemperature         = "#{Math.round(convertedTemperature) }#{unit}"
     displayTemperatureApparent = "#{Math.round(convertedTempApparent)}#{unit}"
-    ```}```
+    ```}```  ## End reactive block.
 
 
     getData = () ->
@@ -59,17 +61,12 @@
 
     celsius = (f) -> 5/9 * (f - 32)
 
-    formatterF = Math.round
-    formatterC = (n) -> formatterF celsius(n)
-
     temperatureFormatter = (t) ->
         if mode is 'c' then t = celsius t
         Math.round t
 
-
     onMount () ->
         data = await data
-        console.log data
         now = dayjs()
 
         labels = []
@@ -100,23 +97,17 @@
         dataDaily =
             labels: labels
             precipProbability: precipProbability
-            temperatureMin: temperatureMin
-            temperatureMax: temperatureMax
-            apparentMin:    apparentMin
-            apparentMax:    apparentMax
+            temperatureMin:    temperatureMin
+            temperatureMax:    temperatureMax
+            apparentMin:       apparentMin
+            apparentMax:       apparentMax
 
 
-        temperature = data.currently.temperature
+        temperature =         data.currently.temperature
         temperatureApparent = data.currently.apparentTemperature
 
-
-        dataCurrently =
-            labels: ['', '', 'Temperature']
-            temperature: [NaN, NaN, temperature]
-
-        dataCurrentlyApparent =
-            labels: ['', '', 'Temperature']
-            temperature: [NaN, NaN, temperatureApparent]
+        Chart.defaults.global.elements.line.tension = 0
+        Chart.defaults.global.elements.line.fill = false
 
         datasetsF = [
             dsCurrently =
@@ -124,48 +115,37 @@
                 backgroundColor: COLORS.purple
                 borderColor: COLORS.purple
                 pointRadius: 6
-                data: dataCurrently.temperature
-                fill: false
-                lineTension: 0
+                data:[NaN, NaN, temperature]
                 yAxisID: 'temperature-axis'
                 datalabels:
                     display: false
                     color: COLORS.purple
-                    align: 'end'
             dsCurrentlyApparent =
                 label: 'Temperature (Apparent)'
                 showLine: false
                 backgroundColor: COLORS.lightpurple
                 borderColor: COLORS.lightpurple
                 pointRadius: 0
-                data: dataCurrentlyApparent.temperature
-                fill: false
-                lineTension: 0
+                data: [NaN, NaN, temperatureApparent]
                 yAxisID: 'temperature-axis'
                 datalabels:
                     display: false
                     color: COLORS.lightpurple
-                    align: 'end'
             dsHighs =
                 label: 'High'
                 backgroundColor: COLORS.red
                 borderColor: COLORS.red
                 borderWidth: 4
                 data: dataDaily.temperatureMax
-                fill: false
-                lineTension: 0
                 yAxisID: 'temperature-axis'
                 datalabels:
                     color: COLORS.red
-                    align: 'end'
             dsLows =
                 label: 'Low'
                 backgroundColor: COLORS.blue
                 borderColor: COLORS.blue
                 borderWidth: 4
                 data: dataDaily.temperatureMin
-                fill: false
-                lineTension: 0
                 yAxisID: 'temperature-axis'
                 datalabels:
                     color: COLORS.blue
@@ -179,8 +159,6 @@
                 borderWidth: 4
                 pointRadius: 0
                 data: dataDaily.apparentMax
-                fill: false
-                lineTension: 0
                 yAxisID: 'temperature-axis'
                 datalabels:
                     display: false
@@ -192,8 +170,6 @@
                 borderWidth: 4
                 pointRadius: 0
                 data: dataDaily.apparentMin
-                fill: false
-                lineTension: 0
                 yAxisID: 'temperature-axis'
                 datalabels:
                     display: false
@@ -203,23 +179,19 @@
                 backgroundColor: COLORS.lightblue
                 borderColor: COLORS.lightblue
                 data: dataDaily.precipProbability
-                fill: false
                 yAxisID: 'percent-axis'
                 datalabels:
                     display: false
                     color: COLORS.gray
-                    align: 'end'
                     anchor: 'start'
                     formatter: (n) ->
                         Math.round(n) + '%'
         ]
 
-        await tick()
-
         jq('.toggle-fc').click (e) ->
             e.preventDefault()
 
-            if mode is 'f' then mode = 'c' else mode = 'f'
+            mode = if mode is 'f' then 'c' else 'f'
 
             chart1.update()
             chart2.update()
@@ -229,7 +201,7 @@
             showApparentTemps = !showApparentTemps
 
             dsHighsApparent.showLine = showApparentTemps
-            dsLowsApparent.showLine = showApparentTemps
+            dsLowsApparent.showLine  = showApparentTemps
 
             dsCurrentlyApparent.pointRadius = if showApparentTemps then 6 else 0
 
@@ -325,6 +297,7 @@
                     plugins:
                         datalabels:
                             display: 'auto'
+                            align: 'end'
                             formatter: temperatureFormatter
                             padding: 1
                             font:
@@ -342,13 +315,13 @@
                                 type: 'linear'
                                 position: 'left'
                             axis =
-                                type: 'linear'
+                                id: 'percent-axis'
                                 display: false
+                                type: 'linear'
                                 position: 'right'
                                 ticks:
                                     min: 0
                                     max: 100
-                                id: 'percent-axis'
                                 gridLines:
                                     drawOnChartArea: false
                         ]
@@ -366,15 +339,14 @@ main
                         a(href="https://darksky.net/forecast/{data.latitude},{data.longitude}/") Full DarkSky Forecast
                 .forecast.flex-bottom.flex-vertical
                     div.flex-item.flex-container.center
-                        h1: span.location {data.location || 'loading...'}
+                        h1: span.location {data.location}
                     div.icon-and-temperature.flex-item.flex-container.center
                         div.icon.toggle-fc
-                            img(src='https://darksky.net/images/weather-icons/{data.currently.icon}.png')
+                            img(src='{ICON_URL_BASE}{data.currently.icon}.png')
                         div.temperature.toggle-fc {@html displayTemperature}
                     div.flex-item.flex-container.center.toggle-fc
-                        span.summary
-                        span . Feels like&nbsp;
-                        span.apparentTemperature {@html displayTemperatureApparent}
+                        span {data.currently.summary}.
+                        span Feels like&nbsp;{@html displayTemperatureApparent}
                     div.flex-item.flex-container.center
                         hr
 
@@ -383,23 +355,26 @@ main
                     div.template
                         div.icon
                         div.label
-                div.chart(style='padding: 15px'): canvas(bind:this='{canvas1}')
+                div.chart: canvas(bind:this='{canvas1}')
 
         .view.landscape
             #wide-chart
-                h1.center: span.toggle-fc.location {data.location || 'loading...'}
+                h1.center: span.toggle-fc.location {data.location}
                 div.center: span.toggle-fc {data.summary}
                 div#daily.flex-container.space-between.toggle-simple
                     div.template
                         div.icon
                         div.label
-                div.chart(style='padding: 15px'): canvas(bind:this='{canvas2}')
+                div.chart: canvas(bind:this='{canvas2}')
 
 </template>
 
 <style>
     *:not(input):not(textarea) {
         user-select: none;
+    }
+    .chart {
+        padding: 15px;
     }
     .center {
         text-align: center;
