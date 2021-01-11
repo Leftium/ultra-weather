@@ -393,8 +393,8 @@ main
 
         .view.landscape
             #wide-chart
-                h1.location {data.location || 'loading...'}
-                div#summary
+                h1.center.location {data.location || 'loading...'}
+                div.center#summary
                 div#daily.flex-container.space-between.toggle-fc
                     div.template
                         div.icon
@@ -404,5 +404,7 @@ main
 </template>
 
 <style>
-
+    .center {
+        text-align: center;
+    }
 </style>
