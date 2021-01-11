@@ -450,7 +450,7 @@ main(on:click='{ensureToolTipClosed}' on:touchstart='{ensureToolTipClosed}')
     /* Historical weather */
     :global(.day-0 .icon),
     :global(.day-1 .icon) {
-        opacity: .44;
+        opacity: .22;
     }
 
     /* Today */
