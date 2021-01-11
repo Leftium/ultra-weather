@@ -350,7 +350,7 @@ main
                             img(src='{ICON_URL_BASE}{data.currently.icon}.png')
                         div.temperature.toggle-fc {@html displayTemperature}
                     div.flex-item.flex-container.center.toggle-fc
-                        span {data.currently.summary}.
+                        span {data.currently.summary}.&nbsp;
                         span Feels like&nbsp;{@html displayTemperatureApparent}
                     div.flex-item.flex-container.center: hr
 
