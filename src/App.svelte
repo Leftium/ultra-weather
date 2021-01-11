@@ -257,6 +257,8 @@
                 value = "#{value.toFixed(1)}".padStart 6, ' '
                 return "#{value}: #{label}"
 
+        toolTipsTitleCallback = (tooltipItem, d) ->
+            data.daily[tooltipItem[0].index].summary
 
         Chart.Tooltip.positioners.top = (elements, eventPosition) ->
             point = Chart.Tooltip.positioners.nearest elements, eventPosition
@@ -285,6 +287,7 @@
                         bodyFontFamily: 'Lucida Console, Courier, monospace'
                         callbacks:
                             label: toolTipsLabelCallback
+                            title: toolTipsTitleCallback
                     animation: false
                     responsive: true
                     aspectRatio: aspectRatio
