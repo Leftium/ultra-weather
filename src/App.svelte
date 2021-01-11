@@ -349,37 +349,45 @@ main
                         div.icon.toggle-fc
                             img(src='{ICON_URL_BASE}{data.currently.icon}.png')
                         div.temperature.toggle-fc {@html displayTemperature}
-                    div.flex-item.flex-container.center.toggle-fc
+                    div.flex-item.flex-container.center.toggle-fc.margin-bottom
                         span {data.currently.summary}.&nbsp;
                         span Feels like&nbsp;{@html displayTemperatureApparent}
-                    div.flex-item.flex-container.center: hr
 
             #chart.flex-bottom
                 div#daily.flex-container.space-between.toggle-simple
                     div.template
                         div.icon
                         div.label
+                div.flex-item.flex-container.center: hr
                 div.chart: canvas(bind:this='{canvas1}')
+
 
         .view.landscape
             #wide-chart
                 h1.center: span.toggle-fc.location {data.location}
-                div.center: span.toggle-fc {data.summary}
-                div.flex-item.flex-container.center: hr
+                div.center.margin-bottom: span.toggle-fc {data.summary}
                 div#daily.flex-container.space-between.toggle-simple
                     div.template
                         div.icon
                         div.label
+                div.flex-item.flex-container.center: hr
                 div.chart: canvas(bind:this='{canvas2}')
 
 </template>
 
 <style>
+    .portrait {
+        margin-top: 8px;
+    }
     *:not(input):not(textarea) {
         user-select: none;
     }
     hr {
         border-top: 1px solid #eee8d5;
+        width: 100%;
+    }
+    .margin-bottom {
+        margin-bottom: 20px;
     }
     #wide-chart h1 {
         margin: 0;

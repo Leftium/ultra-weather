@@ -78,25 +78,19 @@ html, body {
     font-weight: bold;
 }
 
-.celsius,
-.fahrenheit {
-  -webkit-tap-highlight-color: transparent;
-}
-
-
 .flex-container {
   padding: 0;
-  margin: 0;
+  margin: 0 8px;
   list-style: none;
-  
+
   -ms-box-orient: horizontal;
   display: flex;
 }
 
-.center { 
+.center {
   -webkit-justify-content: center; 
   justify-content: center; 
-}  
+}
 
 .space-between { 
   -webkit-justify-content: space-between; 
