@@ -376,6 +376,9 @@ main
     *:not(input):not(textarea) {
         user-select: none;
     }
+    #wide-chart h1 {
+        margin: 0;
+    }
     .chart {
         padding: 15px;
     }
