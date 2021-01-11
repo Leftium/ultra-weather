@@ -19,6 +19,8 @@
         purple: '#6c71c4'
         lightpurple: '#6c71c444'
         gray: '#586e75'
+        lightcyan: '#00afaf44'
+        water: '#1ca3ec44'
 
     canvas1 = null
     canvas2 = null
@@ -176,8 +178,8 @@
             dsPrec =
                 type: 'bar'
                 label: 'Prec. %'
-                backgroundColor: COLORS.lightblue
-                borderColor: COLORS.lightblue
+                backgroundColor: COLORS.water
+                borderColor: COLORS.water
                 data: dataDaily.precipProbability
                 yAxisID: 'percent-axis'
                 datalabels:
@@ -350,8 +352,7 @@ main
                     div.flex-item.flex-container.center.toggle-fc
                         span {data.currently.summary}.
                         span Feels like&nbsp;{@html displayTemperatureApparent}
-                    div.flex-item.flex-container.center
-                        hr
+                    div.flex-item.flex-container.center: hr
 
             #chart.flex-bottom
                 div#daily.flex-container.space-between.toggle-simple
@@ -364,6 +365,7 @@ main
             #wide-chart
                 h1.center: span.toggle-fc.location {data.location}
                 div.center: span.toggle-fc {data.summary}
+                div.flex-item.flex-container.center: hr
                 div#daily.flex-container.space-between.toggle-simple
                     div.template
                         div.icon
@@ -375,6 +377,9 @@ main
 <style>
     *:not(input):not(textarea) {
         user-select: none;
+    }
+    hr {
+        border-top: 1px solid #eee8d5;
     }
     #wide-chart h1 {
         margin: 0;
