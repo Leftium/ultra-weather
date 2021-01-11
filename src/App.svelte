@@ -30,6 +30,26 @@
     dsLowsApparent = null
     dsCurrentlyApparent = null
 
+    temperature = 0
+    temperatureApparent = 0
+    displayTemperature = ''
+    displayTemperatureApparent = ''
+    ```$: {```
+
+    if mode is 'c'
+        convertedTemperature = celsius temperature
+        convertedTempApparent = celsius temperatureApparent
+    else
+        convertedTemperature = temperature
+        convertedTempApparent = temperatureApparent
+
+    unit = "&deg;#{mode.toUpperCase()}"
+
+    displayTemperature         = "#{Math.round(convertedTemperature) }#{unit}"
+    displayTemperatureApparent = "#{Math.round(convertedTempApparent)}#{unit}"
+    ```}```
+
+
     getData = () ->
         url = '/.netlify/functions/serverless'
         response = await axios.get url
@@ -91,13 +111,17 @@
             apparentMax:    apparentMax
 
 
+        temperature = data.currently.temperature
+        temperatureApparent = data.currently.apparentTemperature
+
+
         dataCurrently =
             labels: ['', '', 'Temperature']
-            temperature: [NaN, NaN, data.currently.temperature]
+            temperature: [NaN, NaN, temperature]
 
         dataCurrentlyApparent =
             labels: ['', '', 'Temperature']
-            temperature: [NaN, NaN, data.currently.apparentTemperature]
+            temperature: [NaN, NaN, temperatureApparent]
 
         datasetsF = [
             dsCurrently =
@@ -199,8 +223,6 @@
 
         $currently = jq('#currently').attr 'title', data.summary
 
-        temperatureDiv data.currently.temperature, $currently.find('.temperature')
-        temperatureDiv data.currently.apparentTemperature, $currently.find('.apparentTemperature')
         $currently.find('.summary').html data.currently.summary
 
         img = "https://darksky.net/images/weather-icons/#{data.currently.icon}.png"
@@ -208,25 +230,11 @@
 
         jq('#summary').html data.summary
 
-        jq('.celsius').addClass 'hidden'
-
-        jq('.celsius').click (e) ->
+        jq('.toggle-fc').click (e) ->
             e.preventDefault()
-            jq('.fahrenheit').removeClass 'hidden'
-            jq('.celsius').addClass 'hidden'
 
-            mode = 'f'
+            if mode is 'f' then mode = 'c' else mode = 'f'
 
-            chart1.update()
-            chart2.update()
-
-
-        jq('.fahrenheit').click (e) ->
-            e.preventDefault()
-            jq('.celsius').removeClass 'hidden'
-            jq('.fahrenheit').addClass 'hidden'
-
-            mode = 'c'
             chart1.update()
             chart2.update()
 
@@ -366,18 +374,18 @@ main
                 .forecast.flex-bottom.flex-vertical
                     div.flex-item.flex-container.center
                         h1.location {data.location || 'loading...'}
-                    div.icon-and-temperature.flex-item.flex-container.center
+                    div.icon-and-temperature.flex-item.flex-container.center.toggle-fc
                         div.icon
-                        div.temperature
+                        div.temperature {@html displayTemperature}
                     div.flex-item.flex-container.center
                         span.summary
                         span . Feels like&nbsp;
-                        span.apparentTemperature
+                        span.apparentTemperature {@html displayTemperatureApparent}
                     div.flex-item.flex-container.center
                         hr
 
             #chart.flex-bottom
-                div#daily.flex-container.space-between
+                div#daily.flex-container.space-between.toggle-fc
                     div.template
                         div.icon
                         div.label
@@ -387,7 +395,7 @@ main
             #wide-chart
                 h1.location {data.location || 'loading...'}
                 div#summary
-                div#daily.flex-container.space-between
+                div#daily.flex-container.space-between.toggle-fc
                     div.template
                         div.icon
                         div.label
