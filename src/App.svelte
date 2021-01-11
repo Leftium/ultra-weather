@@ -2,7 +2,7 @@
     import axios from 'axios'
     import dayjs from 'dayjs'
 
-    import { onMount, tick } from 'svelte'
+    import { onMount } from 'svelte'
 
     import Chart from 'chart.js'
     import ChartDataLabels from 'chartjs-plugin-datalabels'
@@ -56,31 +56,16 @@
 
     now = dayjs()
 
-    getData = () ->
-        url = '/.netlify/functions/serverless'
-        response = await axios.get url
-        data = await response.data
-
-        data.labels = []
-
-        for dailyData in data.daily
-            jsDate = dayjs.unix dailyData.time
-            if jsDate.isSame now, 'day'
-                data.labels.push "Today"
-            else
-                data.labels.push jsDate.format 'dd-DD'
-
-        return data
-
-
-    data = getData()
-
     celsius = (f) -> 5/9 * (f - 32)
 
     temperatureFormatter = (t) ->
         if mode is 'c' then t = celsius t
         Math.round t
 
+    ensureToolTipClosed = (e) ->
+        if not e.target.$chartjs
+            canvas1.dispatchEvent(new MouseEvent 'mouseout')
+            canvas2.dispatchEvent(new MouseEvent 'mouseout')
 
     toggleUnits = (e) ->
         e.preventDefault()
@@ -102,6 +87,23 @@
         chart1.update()
         chart2.update()
 
+    getData = () ->
+        url = '/.netlify/functions/serverless'
+        response = await axios.get url
+        data = await response.data
+
+        data.labels = []
+
+        for day in data.daily
+            jsDate = dayjs.unix day.time
+            if jsDate.isSame now, 'day'
+                data.labels.push "Today"
+            else
+                data.labels.push jsDate.format 'dd-DD'
+
+        return data
+    data = getData()
+
     onMount () ->
         data = await data
 
@@ -113,15 +115,15 @@
         apparentMax = []
 
 
-        for dailyData in data.daily
-            temperature.push dailyData.temperature
-            precipProbability.push dailyData.precipProbability * 100
+        for day in data.daily
+            temperature.push day.temperature
+            precipProbability.push day.precipProbability * 100
 
-            temperatureMin.push dailyData.temperatureMin
-            temperatureMax.push dailyData.temperatureMax
+            temperatureMin.push day.temperatureMin
+            temperatureMax.push day.temperatureMax
 
-            apparentMin.push    dailyData.apparentTemperatureMin
-            apparentMax.push    dailyData.apparentTemperatureMax
+            apparentMin.push    day.apparentTemperatureMin
+            apparentMax.push    day.apparentTemperatureMax
 
         dataDaily =
             labels: data.labels
@@ -309,15 +311,6 @@
         return () ->
             chart1.destroy()
             chart2.destroy()
-
-    ensureToolTipClosed = (e) ->
-        console.log 'ensureToolTipClosed'
-        if not e.target.$chartjs
-            console.log 'not chart'
-            canvas1.dispatchEvent(new MouseEvent 'mouseout')
-            canvas2.dispatchEvent(new MouseEvent 'mouseout')
-        else
-            console.log 'chart'
 </script>
 
 <template lang=pug>
