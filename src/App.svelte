@@ -42,6 +42,10 @@
     formatterF = Math.round
     formatterC = (n) -> formatterF celsius(n)
 
+    temperatureFormatter = (t) ->
+        if mode is 'c' then t = celsius t
+        Math.round t
+
 
     temperatureDiv = (f, div) ->
         c = celsius f
@@ -213,10 +217,7 @@
 
             mode = 'f'
 
-            chart1.options.plugins.datalabels.formatter = formatterF
             chart1.update()
-
-            chart2.options.plugins.datalabels.formatter = formatterF
             chart2.update()
 
 
@@ -226,11 +227,7 @@
             jq('.fahrenheit').addClass 'hidden'
 
             mode = 'c'
-
-            chart1.options.plugins.datalabels.formatter = formatterC
             chart1.update()
-
-            chart2.options.plugins.datalabels.formatter = formatterC
             chart2.update()
 
         jq('.chart').click (e) ->
@@ -324,7 +321,7 @@
                     plugins:
                         datalabels:
                             display: 'auto'
-                            formatter: formatterF
+                            formatter: temperatureFormatter
                             padding: 1
                             font:
                                 weight: '900'
