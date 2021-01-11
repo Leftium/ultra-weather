@@ -380,11 +380,11 @@ main
                         a(href="https://darksky.net/forecast/{data.latitude},{data.longitude}/") Full DarkSky Forecast
                 .forecast.flex-bottom.flex-vertical
                     div.flex-item.flex-container.center
-                        h1.location {data.location || 'loading...'}
-                    div.icon-and-temperature.flex-item.flex-container.center.toggle-fc
-                        div.icon
-                        div.temperature {@html displayTemperature}
-                    div.flex-item.flex-container.center
+                        h1: span.location {data.location || 'loading...'}
+                    div.icon-and-temperature.flex-item.flex-container.center
+                        div.icon.toggle-fc
+                        div.temperature.toggle-fc {@html displayTemperature}
+                    div.flex-item.flex-container.center.toggle-fc
                         span.summary
                         span . Feels like&nbsp;
                         span.apparentTemperature {@html displayTemperatureApparent}
@@ -400,8 +400,8 @@ main
 
         .view.landscape
             #wide-chart
-                h1.center.toggle-fc.location {data.location || 'loading...'}
-                div.center.toggle-fc#summary
+                h1.center: span.toggle-fc.location {data.location || 'loading...'}
+                div.center: span.toggle-fc#summary
                 div#daily.flex-container.space-between.toggle-simple
                     div.template
                         div.icon
