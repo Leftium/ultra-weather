@@ -24,7 +24,6 @@
     "chartjs-plugin-datalabels": "^0.7.0",
     "dayjs": "^1.10.3",
     "dotenv": "^8.2.0",
-    "jquery": "^3.5.1",
     "rollup-plugin-coffee-script": "^2.0.0",
     "sirv-cli": "^1.0.0"
   }

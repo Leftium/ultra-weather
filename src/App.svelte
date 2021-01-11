@@ -4,8 +4,6 @@
 
     import { onMount, tick } from 'svelte'
 
-    import jq from 'jquery'
-
     import Chart from 'chart.js'
     import ChartDataLabels from 'chartjs-plugin-datalabels'
 
@@ -24,6 +22,9 @@
 
     canvas1 = null
     canvas2 = null
+
+    chart1 = null
+    chart2 = null
 
     mode = 'f'  # F/C temperature mode.
 
@@ -53,11 +54,24 @@
     displayTemperatureApparent = "#{Math.round(convertedTempApparent)}#{unit}"
     ```}```  ## End reactive block.
 
+    now = dayjs()
 
     getData = () ->
         url = '/.netlify/functions/serverless'
         response = await axios.get url
-        data = response.data
+        data = await response.data
+
+        data.labels = []
+
+        for dailyData in data.daily
+            jsDate = dayjs.unix dailyData.time
+            if jsDate.isSame now, 'day'
+                data.labels.push "Today"
+            else
+                data.labels.push jsDate.format 'dd-DD'
+
+        return data
+
 
     data = getData()
 
@@ -67,11 +81,30 @@
         if mode is 'c' then t = celsius t
         Math.round t
 
+
+    toggleUnits = (e) ->
+        e.preventDefault()
+
+        mode = if mode is 'f' then 'c' else 'f'
+
+        chart1.update()
+        chart2.update()
+
+    toggleSimple = (e) ->
+        e.preventDefault()
+        showApparentTemps = !showApparentTemps
+
+        dsHighsApparent.showLine = showApparentTemps
+        dsLowsApparent.showLine  = showApparentTemps
+
+        dsCurrentlyApparent.pointRadius = if showApparentTemps then 6 else 0
+
+        chart1.update()
+        chart2.update()
+
     onMount () ->
         data = await data
-        now = dayjs()
 
-        labels = []
         precipProbability = []
         temperature = []
         temperatureMin = []
@@ -80,13 +113,7 @@
         apparentMax = []
 
 
-        for dailyData,i in data.daily
-            jsDate = dayjs.unix dailyData.time
-            if jsDate.isSame now, 'day'
-                labels.push "Today"
-            else
-                labels.push jsDate.format 'dd-DD'
-
+        for dailyData in data.daily
             temperature.push dailyData.temperature
             precipProbability.push dailyData.precipProbability * 100
 
@@ -97,7 +124,7 @@
             apparentMax.push    dailyData.apparentTemperatureMax
 
         dataDaily =
-            labels: labels
+            labels: data.labels
             precipProbability: precipProbability
             temperatureMin:    temperatureMin
             temperatureMax:    temperatureMax
@@ -190,60 +217,6 @@
                         Math.round(n) + '%'
         ]
 
-        jq('.toggle-fc').click (e) ->
-            e.preventDefault()
-
-            mode = if mode is 'f' then 'c' else 'f'
-
-            chart1.update()
-            chart2.update()
-
-        jq('.toggle-simple').click (e) ->
-            e.preventDefault()
-            showApparentTemps = !showApparentTemps
-
-            dsHighsApparent.showLine = showApparentTemps
-            dsLowsApparent.showLine  = showApparentTemps
-
-            dsCurrentlyApparent.pointRadius = if showApparentTemps then 6 else 0
-
-            chart1.update()
-            chart2.update()
-
-
-
-        list = (day.icon for day in data.daily)
-
-        $template = jq('#chart .template')
-
-        for icon,i in list.slice(0,5)
-            [div] = $template.clone()
-                             .addClass("day-#{i}")
-                             .attr 'title', data.daily[i].summary
-
-            img = "https://darksky.net/images/weather-icons/#{list[i]}.png"
-
-            jq(div).insertBefore($template)
-            jq(div).find('div.icon').append("<img src=#{img}>")
-            jq("#chart .day-#{i} .label").html labels[i]
-
-        $template.remove()
-
-        $template = jq('#wide-chart .template')
-
-        for icon,i in list
-            [div] = $template.clone()
-                             .addClass("day-#{i}")
-                             .attr 'title', data.daily[i].summary
-
-            img = "https://darksky.net/images/weather-icons/#{list[i]}.png"
-
-            jq(div).insertBefore($template)
-            jq(div).find('div.icon').append("<img src=#{img}>")
-            jq("#wide-chart .day-#{i} .label").html labels[i]
-
-        $template.remove()
-
         toolTipsLabelCallback = (tooltipItem, data) ->
             yAxisID = data.datasets[tooltipItem.datasetIndex].yAxisID
             label = data.datasets[tooltipItem.datasetIndex].label or ''
@@ -330,8 +303,12 @@
                                 gridLines:
                                     drawOnChartArea: false
                         ]
-        chart1 = makeChartJs canvas1, dataDaily.labels[...5], datasetsF
-        chart2 = makeChartJs canvas2, dataDaily.labels,       datasetsF, 3, true
+        chart1 = makeChartJs canvas1, data.labels[...5], datasetsF
+        chart2 = makeChartJs canvas2, data.labels,       datasetsF, 3, true
+
+        return () ->
+            chart1.destroy()
+            chart2.destroy()
 
     ensureToolTipClosed = (e) ->
         console.log 'ensureToolTipClosed'
@@ -352,18 +329,19 @@ main(on:click='{ensureToolTipClosed}' on:touchstart='{ensureToolTipClosed}')
                     div.flex-item.flex-container.center
                         h1.center: span.location {data.location}
                     div.icon-and-temperature.flex-item.flex-container.center
-                        div.icon.toggle-fc
+                        div.icon(on:click='{toggleUnits}')
                             img(src='{ICON_URL_BASE}{data.currently.icon}.png')
-                        div.temperature.toggle-fc {@html displayTemperature}
-                    div.flex-item.flex-container.center.toggle-fc.margin-bottom
+                        div.temperature(on:click='{toggleUnits}') {@html displayTemperature}
+                    div.flex-item.flex-container.center.margin-bottom(on:click='{toggleUnits}')
                         span {data.currently.summary}.&nbsp;
                         span Feels like&nbsp;{@html displayTemperatureApparent}
 
             #chart.flex-bottom
-                div#daily.flex-container.space-between.toggle-simple
-                    div.template
-                        div.icon
-                        div.label
+                div#daily.flex-container.space-between(on:click='{toggleSimple}')
+                    +each('data.daily.slice(0,5) as day,i')
+                        div(class='day-{i}' title='{data.daily[i].summary}')
+                            div.icon: img(src='https://darksky.net/images/weather-icons/{day.icon}.png')
+                            div.label {data.labels[i]}
                 div.flex-item.flex-container.center: hr
                 div.chart: canvas(bind:this='{canvas1}')
                 #links-container.flex-top.flex-container
@@ -372,12 +350,13 @@ main(on:click='{ensureToolTipClosed}' on:touchstart='{ensureToolTipClosed}')
 
         .view.landscape
             #wide-chart
-                h1.center: span.toggle-fc.location {data.location}
-                div.center.margin-bottom: span.toggle-fc {data.summary}
-                div#daily.flex-container.space-between.toggle-simple
-                    div.template
-                        div.icon
-                        div.label
+                h1.center: span.location(on:click='{toggleUnits}') {data.location}
+                div.center.margin-bottom: span(on:click='{toggleUnits}') {data.summary}
+                div#daily.flex-container.space-between(on:click='{toggleSimple}')
+                    +each('data.daily as day,i')
+                        div(class='day-{i}' title='{data.daily[i].summary}')
+                            div.icon: img(src='https://darksky.net/images/weather-icons/{day.icon}.png')
+                            div.label {data.labels[i]}
                 div.flex-item.flex-container.center: hr
                 div.chart: canvas(bind:this='{canvas2}')
 
