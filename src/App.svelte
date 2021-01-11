@@ -380,10 +380,10 @@ main
                         a(href="https://darksky.net/forecast/{data.latitude},{data.longitude}/") Full DarkSky Forecast
                 .forecast.flex-bottom.flex-vertical
                     div.flex-item.flex-container.center
-                        h1.location {data.location || 'loading...'}
+                        h1.location.no-select {data.location || 'loading...'}
                     div.icon-and-temperature.flex-item.flex-container.center.toggle-fc
                         div.icon
-                        div.temperature {@html displayTemperature}
+                        div.temperature.no-select {@html displayTemperature}
                     div.flex-item.flex-container.center
                         span.summary
                         span . Feels like&nbsp;
@@ -394,23 +394,26 @@ main
             #chart.flex-bottom
                 div#daily.flex-container.space-between.toggle-fc
                     div.template
-                        div.icon
-                        div.label
-                div.chart(style='padding: 15px'): canvas(bind:this='{canvas1}')
+                        div.icon.no-select
+                        div.label.no-select
+                div.chart.no-select(style='padding: 15px'): canvas(bind:this='{canvas1}')
 
         .view.landscape
             #wide-chart
                 h1.center.toggle-fc.location {data.location || 'loading...'}
-                div.center.toggle-fc#summary
+                div.center.toggle-fc.no-select#summary
                 div#daily.flex-container.space-between.toggle-fc
                     div.template
-                        div.icon
-                        div.label
-                div.chart(style='padding: 15px'): canvas(bind:this='{canvas2}')
+                        div.icon.no-select
+                        div.label.no-select
+                div.chart.no-select(style='padding: 15px'): canvas(bind:this='{canvas2}')
 
 </template>
 
 <style>
+    .no-select {
+        user-select: none;
+    }
     .center {
         text-align: center;
     }
