@@ -26,6 +26,11 @@
         cyan:   '#00afaf'
         cyan80: '#33bfbf'
         cyan40: '#99dfdf'
+        cyan20: '#ccefef'
+
+        water:   '#c3e3f8'
+        water60: '#E1F4FF'
+
 
     canvas1 = null
     canvas2 = null
@@ -259,8 +264,8 @@
             dsPrec =
                 type: 'bar'
                 label: 'Prec. %'
-                backgroundColor: makeColorScript COLORS.cyan40, COLORS.cyan80
-                borderColor: makeColorScript COLORS.cyan40, COLORS.cyan80
+                backgroundColor: makeColorScript COLORS.water60, COLORS.water
+                borderColor: makeColorScript COLORS.water60, COLORS.water
                 data: dataDaily.precipProbability
                 yAxisID: 'percent-axis'
                 datalabels:
