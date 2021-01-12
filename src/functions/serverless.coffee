@@ -60,6 +60,7 @@ exports.handler = (event, context) ->
         promises.push callDarkSkyApi(url1)
         promises.push callDarkSkyApi(url2)
         data = await Promise.all promises
+        # console.log  JSON.stringify(data)
 
 
     extractFields = (data) ->
@@ -90,6 +91,8 @@ exports.handler = (event, context) ->
 
     if mockIp
         results.mockIp = true
+
+    if USE_MOCK_DATA
         results.location += ' (mock data)'
 
     results.summary = data[0].daily.summary
