@@ -10,15 +10,21 @@
     ICON_URL_BASE = 'https://darksky.net/images/weather-icons/'
 
     COLORS =
-        red: '#dc322f'
-        lightred: '#dc322f44'
-        blue: '#268bd2'
-        lightblue: '#268bd244'
-        purple: '#6c71c4'
-        lightpurple: '#6c71c444'
-        gray: '#586e75'
-        lightcyan: '#00afaf44'
-        water: '#1ca3ec44'
+        red:   '#dc322f'
+        red80: '#e35b59'
+        red60: '#ea8482'
+        red40: '#f1adac'
+
+        blue:   '#268bd2'
+        blue80: '#51a2db'
+        blue60: '#7db9e4'
+        blue40: '#a8d1ed'
+
+        purple:   '#6c71c4'
+        purple40: '#c4c6e7'
+
+        cyan:   '#00afaf'
+        cyan40: '#99dfdf'
 
     canvas1 = null
     canvas2 = null
@@ -112,6 +118,34 @@
             else
                 color2
 
+    # Based on:
+    # https://github.com/chartjs/Chart.js/issues/4302#issuecomment-304847311
+    makeGradient = (color1, color2) ->
+        (context) ->
+            chart = context.chart
+            chartArea = chart.chartArea
+            xaxis = chart.scales['x-axis-0']
+            ctx = chart.ctx
+
+            numSegments = chart.data.labels.length - 1
+
+            if (!chartArea)
+                # This case happens on initial chart load
+                return null
+
+            left = chart.chartArea.left
+            right = chart.chartArea.right
+
+            gradient = ctx.createLinearGradient left, 0, right, 0
+
+            colorStop = 2/numSegments
+
+            if colorStop > 0 and colorStop < 1
+                gradient.addColorStop colorStop, color1
+                gradient.addColorStop colorStop, color2
+
+            gradient
+
     onMount () ->
         data = await data
 
@@ -165,41 +199,45 @@
             dsCurrentlyApparent =
                 label: 'Temperature (Apparent)'
                 showLine: false
-                backgroundColor: COLORS.lightpurple
-                borderColor: COLORS.lightpurple
+                backgroundColor: COLORS.purple40
+                borderColor: COLORS.purple40
                 pointRadius: 0
                 data: [NaN, NaN, temperatureApparent]
                 yAxisID: 'temperature-axis'
                 datalabels:
                     display: false
-                    color: COLORS.lightpurple
+                    color: COLORS.purple40
             dsHighs =
                 label: 'High'
-                backgroundColor: COLORS.red
-                borderColor: COLORS.red
-                pointBorderColor: makeColorScript COLORS.lightred, COLORS.red
+                backgroundColor: makeGradient COLORS.red80, COLORS.red
+                borderColor: makeGradient COLORS.red80, COLORS.red
                 borderWidth: 4
+                pointBackgroundColor: makeColorScript COLORS.red80, COLORS.red
+                pointBorderColor: makeColorScript COLORS.red80, COLORS.red
+                pointBorderWidth: 0
                 data: dataDaily.temperatureMax
                 yAxisID: 'temperature-axis'
                 datalabels:
-                    color: makeColorScript COLORS.lightred, COLORS.red
+                    color: makeColorScript COLORS.red80, COLORS.red
             dsLows =
                 label: 'Low'
-                backgroundColor: COLORS.blue
-                borderColor: COLORS.blue
-                pointBorderColor: makeColorScript COLORS.lightblue, COLORS.blue
+                backgroundColor:makeGradient COLORS.blue80, COLORS.blue
+                borderColor: makeGradient COLORS.blue80, COLORS.blue
                 borderWidth: 4
+                pointBackgroundColor: makeColorScript COLORS.blue80, COLORS.blue
+                pointBorderColor: makeColorScript COLORS.blue80, COLORS.blue
+                pointBorderWidth: 0
                 data: dataDaily.temperatureMin
                 yAxisID: 'temperature-axis'
                 datalabels:
-                    color: makeColorScript COLORS.lightblue, COLORS.blue
+                    color: makeColorScript COLORS.blue80, COLORS.blue
                     align: 'start'
                     display: 'true'
             dsHighsApparent =
                 label: 'High (Apparent)'
                 showLine: false
-                backgroundColor: COLORS.lightred
-                borderColor: COLORS.lightred
+                backgroundColor: makeGradient COLORS.red40, COLORS.red60
+                borderColor: makeGradient COLORS.red40, COLORS.red60
                 borderWidth: 4
                 pointRadius: 0
                 data: dataDaily.apparentMax
@@ -209,8 +247,8 @@
             dsLowsApparent =
                 label: 'Low  (Apparent)'
                 showLine: false
-                backgroundColor: COLORS.lightblue
-                borderColor: COLORS.lightblue
+                backgroundColor: makeGradient COLORS.blue40, COLORS.blue60
+                borderColor: makeGradient COLORS.blue40, COLORS.blue60
                 borderWidth: 4
                 pointRadius: 0
                 data: dataDaily.apparentMin
@@ -220,13 +258,12 @@
             dsPrec =
                 type: 'bar'
                 label: 'Prec. %'
-                backgroundColor: COLORS.water
-                borderColor: COLORS.water
+                backgroundColor: makeColorScript COLORS.cyan40, COLORS.cyan
+                borderColor: makeColorScript COLORS.cyan40, COLORS.cyan
                 data: dataDaily.precipProbability
                 yAxisID: 'percent-axis'
                 datalabels:
                     display: false
-                    color: COLORS.gray
                     anchor: 'start'
                     formatter: (n) ->
                         Math.round(n) + '%'
