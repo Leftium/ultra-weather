@@ -379,7 +379,7 @@ main(on:click='{ensureToolTipClosed}' on:touchstart='{ensureToolTipClosed}')
                         h1.center: span.location {data.location}
                     div.icon-and-temperature.flex-item.flex-container.center
                         div.icon(on:click='{toggleUnits}')
-                            img(src='{ICON_URL_BASE}{data.currently.icon}.png')
+                            img(alt='{data.currently.icon}' src='{ICON_URL_BASE}{data.currently.icon}.png')
                         div.temperature(on:click='{toggleUnits}') {@html displayTemperature}
                     div.flex-item.flex-container.center.margin-bottom(on:click='{toggleUnits}')
                         span {data.currently.summary}.&nbsp;
@@ -389,7 +389,8 @@ main(on:click='{ensureToolTipClosed}' on:touchstart='{ensureToolTipClosed}')
                 div#daily.flex-container.space-between(on:click='{toggleSimple}')
                     +each('data.daily.slice(0,5) as day,i')
                         div(class='day-{i}' title='{data.daily[i].summary}')
-                            div.icon: img(src='https://darksky.net/images/weather-icons/{day.icon}.png')
+                            div.icon
+                                img(alt='{day.icon}' src='https://darksky.net/images/weather-icons/{day.icon}.png')
                             div.label {data.labels[i]}
                 div.flex-item.flex-container.center: hr
                 div.chart: canvas(bind:this='{canvas1}')
@@ -404,7 +405,8 @@ main(on:click='{ensureToolTipClosed}' on:touchstart='{ensureToolTipClosed}')
                 div#daily.flex-container.space-between(on:click='{toggleSimple}')
                     +each('data.daily as day,i')
                         div(class='day-{i}' title='{data.daily[i].summary}')
-                            div.icon: img(src='https://darksky.net/images/weather-icons/{day.icon}.png')
+                            div.icon
+                                img(alt='{day.icon}' src='https://darksky.net/images/weather-icons/{day.icon}.png')
                             div.label {data.labels[i]}
                 div.flex-item.flex-container.center: hr
                 div.chart: canvas(bind:this='{canvas2}')
