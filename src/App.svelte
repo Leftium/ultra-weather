@@ -102,9 +102,11 @@
 
         loc = location.pathname[1..]  # Trim first slash
 
-        console.log loc
+        queryString = location.search
+        queryParams = new URLSearchParams queryString
+        queryParams.set 'l', loc
 
-        url = "/.netlify/functions/serverless/?l=#{loc}"
+        url = "/.netlify/functions/serverless/?#{queryParams.toString()}"
         response = await axios.get url
         data = await response.data
 
@@ -291,8 +293,12 @@
                 value = celsius(value)
 
             if yAxisID is 'percent-axis'
-                value = "#{Math.round value}".padStart 6, ' '
-                return "#{value}% Chance of precipitation"
+                return if tooltipItem.index < 2
+                    value = "#{value.toFixed 1}".padStart 6, ' '
+                    "#{value}: mm of precipitation"
+                else
+                    value = "#{Math.round value}".padStart 6, ' '
+                    "#{value}% Chance of precipitation"
             else
                 value = "#{value.toFixed(1)}".padStart 6, ' '
                 return "#{value}: #{label}"
