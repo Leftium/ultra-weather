@@ -14,7 +14,7 @@ exports.handler = (event, context) ->
 
     location = event.queryStringParameters.l
     console.log ['location:', location]
-    if location
+    if !!location  # Ensure location non-empty string.
         key = process.env.OPENWEATHER_API_KEY
         url = "http://api.openweathermap.org/geo/1.0/direct?q=#{location}&limit=5&appid=#{key}"
 
@@ -23,7 +23,7 @@ exports.handler = (event, context) ->
 
         console.log data
 
-    if place = data[0]
+    if place = data?[0]
         latitude  = place.lat
         longitude = place.lon
         # location = "#{place.name} (#{place.country})"
