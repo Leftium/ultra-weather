@@ -1,15 +1,22 @@
-require('dotenv').config()
-
 import axios from 'axios'
 
 exports.handler = (event, context) ->
     # console.log """\ncontext: #{JSON.stringify context, null, 2}, event: #{JSON.stringify event, null, 2}\n"""
 
+    MOCK_IP_ADDRESS = process.env.MOCK_IP_ADDRESS
+    MOCK_DATA       = process.env.MOCK_DATA
+
+    console.log o =
+        MOCK_DATA: MOCK_DATA
+        MOCK_IP_ADDRESS: MOCK_IP_ADDRESS
+
     host = event.headers['host']
 
     ipAddress = event.headers['client-ip']
-    if ipAddress is '::1'
-        ipAddress = '110.47.160.191'
+
+    if (ipAddress is '::1') or !!MOCK_IP_ADDRESS
+        ipAddress = MOCK_IP_ADDRESS
+        if not !!ipAddress then ipAddress = '110.47.160.191'
         mockIp = true
 
     location = event.queryStringParameters.l
@@ -26,8 +33,8 @@ exports.handler = (event, context) ->
     if place = data?[0]
         latitude  = place.lat
         longitude = place.lon
-        # location = "#{place.name} (#{place.country})"
-        location = "#{place.name}"
+        location = "#{place.name} (#{place.country})"
+        # location = "#{place.name}"
     else
         url = "http://ip-api.com/json/#{ipAddress}"
 
@@ -39,6 +46,10 @@ exports.handler = (event, context) ->
         longitude = data.lon
         location = data.city or data.regionName or data.country
 
+    console.log vars =
+        latitude: latitude
+        longitude: longitude
+        location:  location
 
     key = process.env.DARK_SKY_API_KEY
     # console.log key
@@ -65,8 +76,8 @@ exports.handler = (event, context) ->
         data = await response.data
 
 
-    if USE_MOCK_DATA = mockIp and true
-        response = await axios.get "http://#{host}/json/mock-data.json"
+    if !!MOCK_DATA
+        response = await axios.get "http://#{host}/json/#{MOCK_DATA}.json"
         data = await response.data
     else
         promises = []
@@ -106,7 +117,7 @@ exports.handler = (event, context) ->
     if mockIp
         results.mockIp = true
 
-    if USE_MOCK_DATA
+    if !!MOCK_DATA
         results.location += ' (mock data)'
 
     results.summary = data[0].daily.summary
