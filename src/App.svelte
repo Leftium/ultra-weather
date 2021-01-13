@@ -98,7 +98,13 @@
         chart2.update()
 
     getData = () ->
-        url = '/.netlify/functions/serverless'
+        console.log location
+
+        loc = location.pathname[1..]  # Trim first slash
+
+        console.log loc
+
+        url = "/.netlify/functions/serverless/?l=#{loc}"
         response = await axios.get url
         data = await response.data
 
@@ -112,6 +118,9 @@
                 data.labels.push jsDate.format 'dd-DD'
 
         return data
+
+
+
     data = getData()
 
     makeColorScript = (color1, color2) ->

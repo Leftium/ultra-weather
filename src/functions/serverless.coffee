@@ -3,27 +3,41 @@ require('dotenv').config()
 import axios from 'axios'
 
 exports.handler = (event, context) ->
-    #console.log """\ncontext: #{JSON.stringify context, null, 2},
-    #               event: #{JSON.stringify event, null, 2}\n"""
+    # console.log """\ncontext: #{JSON.stringify context, null, 2}, event: #{JSON.stringify event, null, 2}\n"""
 
-    ipAddress = event.headers['client-ip']
     host = event.headers['host']
 
-
+    ipAddress = event.headers['client-ip']
     if ipAddress is '::1'
         ipAddress = '110.47.160.191'
         mockIp = true
 
+    location = event.queryStringParameters.l
+    console.log ['location:', location]
+    if location
+        key = process.env.OPENWEATHER_API_KEY
+        url = "http://api.openweathermap.org/geo/1.0/direct?q=#{location}&limit=5&appid=#{key}"
 
-    url = "http://ip-api.com/json/#{ipAddress}"
+        response = await axios.get url
+        data = response.data
 
-    response = await axios.get url
-    data = response.data
-    # console.log data
+        console.log data
 
-    latitude = data.lat
-    longitude = data.lon
-    location = data.city or data.regionName or data.country
+    if place = data[0]
+        latitude  = place.lat
+        longitude = place.lon
+        # location = "#{place.name} (#{place.country})"
+        location = "#{place.name}"
+    else
+        url = "http://ip-api.com/json/#{ipAddress}"
+
+        response = await axios.get url
+        data = response.data
+        # console.log data
+
+        latitude = data.lat
+        longitude = data.lon
+        location = data.city or data.regionName or data.country
 
 
     key = process.env.DARK_SKY_API_KEY
@@ -51,7 +65,7 @@ exports.handler = (event, context) ->
         data = await response.data
 
 
-    if USE_MOCK_DATA = mockIp
+    if USE_MOCK_DATA = mockIp and true
         response = await axios.get "http://#{host}/json/mock-data.json"
         data = await response.data
     else
