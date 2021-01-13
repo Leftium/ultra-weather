@@ -110,6 +110,11 @@
         response = await axios.get url
         data = await response.data
 
+        #console.log 'DATA: DARKSKY'
+        #console.log JSON.stringify data.dsData, null, 2
+        #console.log 'DATA: OPENWEATHER'
+        #console.log JSON.stringify data.owData, null, 2
+
         data.labels = []
 
         for day in data.daily

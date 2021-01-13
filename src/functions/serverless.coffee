@@ -3,12 +3,15 @@ import axios from 'axios'
 exports.handler = (event, context) ->
     # console.log """\ncontext: #{JSON.stringify context, null, 2}, event: #{JSON.stringify event, null, 2}\n"""
 
-    MOCK_IP_ADDRESS     = process.env.MOCK_IP_ADDRESS
-    MOCK_DATA           = process.env.MOCK_DATA
-    OPENWEATHER_API_KEY = process.env.OPENWEATHER_API_KEY
+    MOCK_IP_ADDRESS       = process.env.MOCK_IP_ADDRESS
+    MOCK_DATA_OPENWEATHER = process.env.MOCK_DATA_OPENWEATHER
+    MOCK_DATA_DARKSKY     = process.env.MOCK_DATA_DARKSKY
+    OPENWEATHER_API_KEY   = process.env.OPENWEATHER_API_KEY
+    DARKSKY_API_KEY       = process.env.DARK_SKY_API_KEY
 
     console.log o =
-        MOCK_DATA: MOCK_DATA
+        MOCK_DATA_OPENWEATHER: MOCK_DATA_OPENWEATHER
+        MOCK_DATA_DARKSKY: MOCK_DATA_DARKSKY
         MOCK_IP_ADDRESS: MOCK_IP_ADDRESS
 
     host = event.headers['host']
@@ -69,8 +72,6 @@ exports.handler = (event, context) ->
         longitude: longitude
         location:  location
 
-    key = process.env.DARK_SKY_API_KEY
-    # console.log key
 
     SECONDS_PER_DAY = 24*60*60
 
@@ -78,17 +79,20 @@ exports.handler = (event, context) ->
     tsMinusOneDay = unixEpoch - SECONDS_PER_DAY
     tsMinusTwoDays = unixEpoch - SECONDS_PER_DAY*2
 
-    darkskyUrls = [
-        "https://api.darksky.net/forecast/#{key}/#{latitude},#{longitude}"
-        "https://api.darksky.net/forecast/#{key}/#{latitude},#{longitude},#{tsMinusOneDay}"
-        "https://api.darksky.net/forecast/#{key}/#{latitude},#{longitude},#{tsMinusTwoDays}"
+    darkskyUrls = if !!MOCK_DATA_DARKSKY
+        ["http://#{host}/json/#{MOCK_DATA_DARKSKY}.json"]
+    else [
+        "https://api.darksky.net/forecast/#{DARKSKY_API_KEY}/#{latitude},#{longitude}"
+        "https://api.darksky.net/forecast/#{DARKSKY_API_KEY}/#{latitude},#{longitude},#{tsMinusOneDay}"
+        "https://api.darksky.net/forecast/#{DARKSKY_API_KEY}/#{latitude},#{longitude},#{tsMinusTwoDays}"
     ]
 
-    openweatherUrls = [
+    openweatherUrls = if !!MOCK_DATA_OPENWEATHER
+         ["http://#{host}/json/#{MOCK_DATA_OPENWEATHER}.json"]
+    else [
         "https://api.openweathermap.org/data/2.5/onecall?lat=#{latitude}&lon=#{longitude}"
         "https://api.openweathermap.org/data/2.5/onecall/timemachine?lat=#{latitude}&lon=#{longitude}&dt=#{tsMinusOneDay}"
         "https://api.openweathermap.org/data/2.5/onecall/timemachine?lat=#{latitude}&lon=#{longitude}&dt=#{tsMinusTwoDays}"
-        #"http://#{host}/json/mock-data-openweather.json"
     ]
 
     # console.log url1
@@ -118,20 +122,25 @@ exports.handler = (event, context) ->
         promises.push callOpenWeatherApi(url)
 
     owData = await Promise.all promises
-    # owData = owData[0]
+    if !!MOCK_DATA_OPENWEATHER
+        owData = owData[0]
+        owData.mockData = true
+    # console.log 'START OPENWEATHER DATA'
     # console.log owData
+    # console.log 'END OPENWEATHER DATA'
 
 
-    if !!MOCK_DATA
-        response = await axios.get "http://#{host}/json/#{MOCK_DATA}.json"
-        dsData = await response.data
-    else
-        promises = []
-        for url in darkskyUrls
-            promises.push callDarkSkyApi(url)
+    promises = []
+    for url in darkskyUrls
+        promises.push callDarkSkyApi(url)
 
-        dsData = await Promise.all promises
-        # console.log  JSON.stringify(data)
+    dsData = await Promise.all promises
+    if !!MOCK_DATA_DARKSKY
+        dsData = dsData[0]
+        dsData.mockData = true
+    # console.log 'START DARKSKY DATA'
+    # console.log  JSON.stringify(dsData)
+    # console.log 'END DARKSKY DATA'
 
 
     extractFields = (data, isHistorical=false) ->
@@ -302,9 +311,6 @@ exports.handler = (event, context) ->
     dsResults =
         daily: []
 
-
-    if !!MOCK_DATA
-        dsResults.location += ' (mock data)'
 
     dsResults.summary = dsData[0].daily.summary
     dsResults.currently = extractFields dsData[0].currently
