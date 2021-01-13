@@ -1,18 +1,22 @@
 import axios from 'axios'
+import dayjs from 'dayjs'
 
 exports.handler = (event, context) ->
-    # console.log """\ncontext: #{JSON.stringify context, null, 2}, event: #{JSON.stringify event, null, 2}\n"""
+    console.log """\ncontext: #{JSON.stringify context, null, 2}, event: #{JSON.stringify event, null, 2}\n"""
 
-    MOCK_IP_ADDRESS       = process.env.MOCK_IP_ADDRESS
-    MOCK_DATA_OPENWEATHER = process.env.MOCK_DATA_OPENWEATHER
-    MOCK_DATA_DARKSKY     = process.env.MOCK_DATA_DARKSKY
-    OPENWEATHER_API_KEY   = process.env.OPENWEATHER_API_KEY
-    DARKSKY_API_KEY       = process.env.DARK_SKY_API_KEY
+    MOCK_IP_ADDRESS          = process.env.MOCK_IP_ADDRESS
+    MOCK_DATA_DARKSKY        = process.env.MOCK_DATA_DARKSKY
+    MOCK_DATA_OPENWEATHER    = process.env.MOCK_DATA_OPENWEATHER
+    MOCK_DATA_VISUALCROSSING = process.env.MOCK_DATA_VISUALCROSSING
+    DARKSKY_API_KEY          = process.env.DARK_SKY_API_KEY
+    OPENWEATHER_API_KEY      = process.env.OPENWEATHER_API_KEY
+    VISUALCROSSING_API_KEY   = process.env.VISUALCROSSING_API_KEY
 
     console.log o =
-        MOCK_DATA_OPENWEATHER: MOCK_DATA_OPENWEATHER
-        MOCK_DATA_DARKSKY: MOCK_DATA_DARKSKY
         MOCK_IP_ADDRESS: MOCK_IP_ADDRESS
+        MOCK_DATA_DARKSKY: MOCK_DATA_DARKSKY
+        MOCK_DATA_OPENWEATHER: MOCK_DATA_OPENWEATHER
+        MOCK_DATA_VISUALCROSSING: MOCK_DATA_VISUALCROSSING
 
     host = event.headers['host']
 
@@ -76,23 +80,35 @@ exports.handler = (event, context) ->
     SECONDS_PER_DAY = 24*60*60
 
     unixEpoch = Math.floor(Date.now() / 1000)
-    tsMinusOneDay = unixEpoch - SECONDS_PER_DAY
-    tsMinusTwoDays = unixEpoch - SECONDS_PER_DAY*2
+    ts1 = unixEpoch - SECONDS_PER_DAY
+    ts2 = unixEpoch - SECONDS_PER_DAY*2
+
+    date1 = dayjs.unix(unixEpoch - 2*SECONDS_PER_DAY).format 'YYYY-M-D'
+    date2 = dayjs.unix(unixEpoch + 7*SECONDS_PER_DAY).format 'YYYY-M-D'
 
     darkskyUrls = if !!MOCK_DATA_DARKSKY
         ["http://#{host}/json/#{MOCK_DATA_DARKSKY}.json"]
     else [
         "https://api.darksky.net/forecast/#{DARKSKY_API_KEY}/#{latitude},#{longitude}"
-        "https://api.darksky.net/forecast/#{DARKSKY_API_KEY}/#{latitude},#{longitude},#{tsMinusOneDay}"
-        "https://api.darksky.net/forecast/#{DARKSKY_API_KEY}/#{latitude},#{longitude},#{tsMinusTwoDays}"
+        "https://api.darksky.net/forecast/#{DARKSKY_API_KEY}/#{latitude},#{longitude},#{ts1}"
+        "https://api.darksky.net/forecast/#{DARKSKY_API_KEY}/#{latitude},#{longitude},#{ts2}"
     ]
 
     openweatherUrls = if !!MOCK_DATA_OPENWEATHER
          ["http://#{host}/json/#{MOCK_DATA_OPENWEATHER}.json"]
     else [
         "https://api.openweathermap.org/data/2.5/onecall?lat=#{latitude}&lon=#{longitude}"
-        "https://api.openweathermap.org/data/2.5/onecall/timemachine?lat=#{latitude}&lon=#{longitude}&dt=#{tsMinusOneDay}"
-        "https://api.openweathermap.org/data/2.5/onecall/timemachine?lat=#{latitude}&lon=#{longitude}&dt=#{tsMinusTwoDays}"
+        "https://api.openweathermap.org/data/2.5/onecall/timemachine?lat=#{latitude}&lon=#{longitude}&dt=#{ts1}"
+        "https://api.openweathermap.org/data/2.5/onecall/timemachine?lat=#{latitude}&lon=#{longitude}&dt=#{ts2}"
+    ]
+
+    url =  "https://weather.visualcrossing.com/VisualCrossingWebServices/rest"
+    url += "/services/timeline/#{latitude},#{longitude}/#{date1}/#{date2}?"
+    url += "key=#{VISUALCROSSING_API_KEY}&unitGroup=us&include=obs,fcst,current"
+    visualcrossingUrls = if !!MOCK_DATA_VISUALCROSSING
+         ["http://#{host}/json/#{MOCK_DATA_VISUALCROSSING}.json"]
+    else [
+        url
     ]
 
     # console.log url1
@@ -117,6 +133,28 @@ exports.handler = (event, context) ->
 
         data = response.data
 
+    callVisualCrossingApi = (url) ->
+        console.log url
+        try
+            response = await axios.get url, config =
+                headers:
+                    'Accept-Encoding': 'gzip'
+            data = response.data
+        catch error
+            console.log error
+    promises = []
+    for url in darkskyUrls
+        promises.push callDarkSkyApi(url)
+
+    dsData = await Promise.all promises
+    if !!MOCK_DATA_DARKSKY
+        dsData = dsData[0]
+        dsData.mockData = true
+    # console.log 'START DARKSKY DATA'
+    # console.log  JSON.stringify(dsData)
+    # console.log 'END DARKSKY DATA'
+
+
     promises = []
     for url in openweatherUrls
         promises.push callOpenWeatherApi(url)
@@ -131,17 +169,16 @@ exports.handler = (event, context) ->
 
 
     promises = []
-    for url in darkskyUrls
-        promises.push callDarkSkyApi(url)
+    for url in visualcrossingUrls
+        promises.push callVisualCrossingApi(url)
 
-    dsData = await Promise.all promises
-    if !!MOCK_DATA_DARKSKY
-        dsData = dsData[0]
-        dsData.mockData = true
-    # console.log 'START DARKSKY DATA'
+    vcData = await Promise.all promises
+    if !!MOCK_DATA_VISUALCROSSING
+        vcData = vcData[0]
+        vcData.mockData = true
+    # console.log 'START VISUALCROSSING DATA'
     # console.log  JSON.stringify(dsData)
-    # console.log 'END DARKSKY DATA'
-
+    # console.log 'END VISUALCROSSING DATA'
 
     extractFields = (data, isHistorical=false) ->
         if isHistorical
@@ -313,6 +350,7 @@ exports.handler = (event, context) ->
 
 
     dsResults.summary = dsData[0].daily.summary
+    dsResults.timezone = dsData[0].timezone
     dsResults.currently = extractFields dsData[0].currently
     dsResults.daily.push extractFields(dsData[2].daily.data[0], true)
     dsResults.daily.push extractFields(dsData[1].daily.data[0], true)
@@ -326,6 +364,7 @@ exports.handler = (event, context) ->
         daily: []
 
     owResults.summary = ''
+    owResults.timezone = owData[0].timezone
     owResults.currently = extractFieldsOw owData[0].current
 
     # console.log 'JKM'
@@ -355,6 +394,51 @@ exports.handler = (event, context) ->
 
     # console.log results
 
+    extractFieldsVc = (data) ->
+        if data?.source isnt 'fcst'
+            precipProbability = data?.precip * 25.4
+            console.log "precip mm: #{precipProbability}"
+        else
+            precipProbability = data?.precipprob
+
+        apparentTemperatureMin = data?.feelslikemin
+        apparentTemperatureMax = data?.feelslikemax
+        if apparentTemperatureMin is 0 and apparentTemperatureMax is 0
+            apparentTemperatureMin = undefined
+            apparentTemperatureMax = undefined
+
+        object =
+            time:    data?.datetimeEpoch
+            datetime: data?.datetime
+            summary: data?.conditions
+            icon:    data?.icon
+
+            precipProbability: precipProbability/100
+
+            temperature:         data?.temp
+            apparentTemperature: data?.feelslike
+
+            temperatureMin: data?.tempmin
+            temperatureMax: data?.tempmax
+
+            apparentTemperatureMin: apparentTemperatureMin
+            apparentTemperatureMax: apparentTemperatureMax
+
+
+    vcResults =
+        daily: []
+
+    vcResults.summary = ''
+    vcResults.timezone = vcData[0].timezone
+    vcResults.currently = extractFieldsVc vcData[0].currentConditions
+
+    for day in vcData[0].days
+        fields = extractFieldsVc day
+        vcResults.daily.push fields
+
+
+    # console.log vcResults
+
     api = event.queryStringParameters.api or ''
 
     results = null
@@ -362,9 +446,12 @@ exports.handler = (event, context) ->
         results = dsResults
     if not results and api in ['ow', 'openweather']
         results = owResults
+    if not results and api in ['vc', 'visualcrossing']
+        results = vcResults
 
     results.dsData = dsData
     results.owData = owData
+    results.vcData = vcData
 
     results.ipAddress = ipAddress
     results.latitude  = latitude
