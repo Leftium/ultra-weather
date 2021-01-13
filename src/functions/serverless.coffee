@@ -25,24 +25,33 @@ exports.handler = (event, context) ->
         key = process.env.OPENWEATHER_API_KEY
         url = "http://api.openweathermap.org/geo/1.0/direct?q=#{location}&limit=5&appid=#{key}"
 
-        response = await axios.get url
-        data = response.data
+        try
+            response = await axios.get url
+            data = response.data
+            # Sort results to prefer some countries
+            data?.sort (a, b) ->
+                countryTiers = US: 1, CA: 2, GB: 3
 
-        # Sort results to prefer some countries
-        data?.sort (a, b) ->
-            countryTiers = US: 1, CA: 2, GB: 3
+                aTier = countryTiers[a.country] or 99
+                bTier = countryTiers[b.country] or 99
 
-            aTier = countryTiers[a.country] or 99
-            bTier = countryTiers[b.country] or 99
+                return aTier - bTier
 
-            return aTier - bTier
+            console.log data
+        catch error
+            console.log error
 
-        console.log data
+
 
     if place = data?[0]
         latitude  = place.lat
         longitude = place.lon
-        location = "#{place.name} (#{place.country})"
+        location = "#{place.name}"
+        if place.state
+            location += ", #{place.state}"
+
+        if place.country
+            location += " [#{place.country}]"
         # location = "#{place.name}"
     else
         url = "http://ip-api.com/json/#{ipAddress}"
@@ -127,7 +136,7 @@ exports.handler = (event, context) ->
         results.mockIp = true
 
     if !!MOCK_DATA
-        results.location += ' [mock data]'
+        results.location += ' (mock data)'
 
     results.summary = data[0].daily.summary
     results.currently = extractFields data[0].currently
