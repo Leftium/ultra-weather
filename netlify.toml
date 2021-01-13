@@ -4,3 +4,13 @@
 
 [build]
   functions = "/functions/"
+
+
+# The following redirect is intended for use with most SPAs that handle
+# routing internally.
+# (https://docs.netlify.com/configure-builds/file-based-configuration/)
+
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
