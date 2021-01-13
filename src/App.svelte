@@ -1,6 +1,12 @@
 <script type='text/coffeescript'>
     import axios from 'axios'
+
     import dayjs from 'dayjs'
+    import utc from 'dayjs/plugin/utc'
+    import timezone  from 'dayjs/plugin/timezone'
+
+    dayjs.extend utc
+    dayjs.extend timezone
 
     import { onMount } from 'svelte'
 
@@ -114,11 +120,11 @@
         #console.log JSON.stringify data.dsData, null, 2
         #console.log 'DATA: OPENWEATHER'
         #console.log JSON.stringify data.owData, null, 2
+        window.data = data
 
         data.labels = []
-
         for day in data.daily
-            jsDate = dayjs.unix day.time
+            jsDate = dayjs.unix(day.time).tz(data.timezone)
             if jsDate.isSame now, 'day'
                 data.labels.push "Today"
             else
