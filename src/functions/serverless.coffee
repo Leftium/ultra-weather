@@ -28,6 +28,15 @@ exports.handler = (event, context) ->
         response = await axios.get url
         data = response.data
 
+        # Sort results to prefer some countries
+        data?.sort (a, b) ->
+            countryTiers = US: 1, CA: 2, GB: 3
+
+            aTier = countryTiers[a.country] or 99
+            bTier = countryTiers[b.country] or 99
+
+            return aTier - bTier
+
         console.log data
 
     if place = data?[0]
@@ -118,7 +127,7 @@ exports.handler = (event, context) ->
         results.mockIp = true
 
     if !!MOCK_DATA
-        results.location += ' (mock data)'
+        results.location += ' [mock data]'
 
     results.summary = data[0].daily.summary
     results.currently = extractFields data[0].currently
