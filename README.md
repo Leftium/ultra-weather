@@ -14,9 +14,18 @@ Live demo: [uw.leftium.com](https://uw.leftium.com)
 
     git clone https://github.com/Leftium/ultra-weather.git
     cd ultra-weather
-    yarn  # Installs dependencies
+    yarn                                 # Install dependencies.
+    netlify init                         # Connect to Netlify.
+        # Answer like this at prompts:
+        # Your build command: "yarn dev"
+        # Directory to deploy to: "public"
+        # Netlify functions folder: "functions"
+    netlify dev                          # Start the local server!
+
+The above will fall back to mock data, since no API keys are configured. To show live weather data, set up your API keys:
+    
     cp .env-example .env
-    ## Edit .env with your own API keys
+    ## Edit .env file with your own API keys
     netlify dev
     
 ### Get your own API keys:
