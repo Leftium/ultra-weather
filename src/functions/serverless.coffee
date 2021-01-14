@@ -1,5 +1,6 @@
 import axios from 'axios'
 import dayjs from 'dayjs'
+import {bool} from 'cast-string'
 
 import mockDataDarksky        from './json/mock-data-darksky.json'
 import mockDataOpenweather    from './json/mock-data-openweather.json'
@@ -26,12 +27,15 @@ exports.handler = (event, context) ->
         if not !!ipAddress then ipAddress = '1.1.1.1'
         mockIp = true
 
+
+    # If true all APIs in preferred API list retrieved and sent.
+    # If false, API calls/payload size are minimized.
+    debug = bool event.queryStringParameters.debug
+
     # Get the list of preferred API's.
     location = event.queryStringParameters.l
     preferredApis = (event.queryStringParameters.api or '').split ','
 
-    # Fallback on mock API.
-    preferredApis = [...preferredApis, 'mockdarksky']
 
     # Normalize API names/shortcuts to full name.
     preferredApis = preferredApis.map (name) ->
@@ -46,6 +50,9 @@ exports.handler = (event, context) ->
 
             # Default to darksky
             else 'mockdarksky'
+
+    # Fallback on mock API.
+    preferredApis = [...preferredApis, 'mockdarksky']
 
     console.log preferredApis: preferredApis
 
@@ -147,6 +154,7 @@ exports.handler = (event, context) ->
     SETTINGS_MOCKOPENWEATHER =
         hasKey: true
         data: mockDataOpenweather
+
     SETTINGS_OPENWEATHER =
         hasKey: !!OPENWEATHER_API_KEY
         urls: [
@@ -165,7 +173,7 @@ exports.handler = (event, context) ->
     SETTINGS_MOCKVISUALCROSSING =
         hasKey: true
         data: mockDataVisualcrossing
-    SETTINGS_OPENWEATHER =
+
     SETTINGS_VISUALCROSSING =
         hasKey: !!VISUALCROSSING_API_KEY
         urls: [
@@ -201,23 +209,19 @@ exports.handler = (event, context) ->
                 api: api
 
         data = null
-        if typeof (url = api.urls) is 'string'
-            response = await axios.get url, api.axiosConfig
-            data = await response.data
-        else
-            promises = []
-            for url in api.urls
-                console.log url
-                try
-                    response = await axios.get url, api.axiosConfig
-                    promises.push response.data
-                    data = await Promise.all promises
-                catch error
-                    console.log "ERROR: #{error.message}"
-                    return error =
-                        error:
-                            message: error?.message
-                            url: error?.config?.url
+        promises = []
+        for url in api.urls
+            console.log url
+            try
+                response = await axios.get url, api.axiosConfig
+                promises.push response.data
+                data = await Promise.all promises
+            catch error
+                console.log "ERROR: #{error.message}"
+                return error =
+                    error:
+                        message: error?.message
+                        url: error?.config?.url
         return data
 
 
@@ -468,6 +472,38 @@ exports.handler = (event, context) ->
 
     mvcNormalized = normalizeVisualcrossingData mvcData, 'mockvirtualcrossing'
 
+    apiData =
+        mockdarksky:        mdsData
+        mockopenweather:    mowData
+        mockvisualcrossing: mvcData
+
+    normalized =
+        mockdarksky:        mdsNormalized
+        mockopenweather:    mowNormalized
+        mockvisualcrossing: mvcNormalized
+
+
+    needData = true
+
+    if 'darksky' in preferredApis
+        data = await getDataFromApi API_SETTINGS.darksky
+        apiData.darksky = data
+        normalized.darksky = normalizeDarkskyData data, 'darksky'
+
+        if data and not data?.error then needData = false
+
+    if debug or ('openweather' in preferredApis and needData)
+        data = await getDataFromApi API_SETTINGS.openweather
+        apiData.openweather = data
+        normalized.openweather = normalizeOpenweatherData data, 'openweather'
+
+        if data and not data?.error then needData = false
+
+    if debug or ('visualcrossing' in preferredApis and needData)
+        data = await getDataFromApi API_SETTINGS.visualcrossing
+        apiData.visualcrossing = data
+        normalized.visualcrossing = normalizeVisualcrossingData data, 'visualcrossing'
+
     payload =
         common:
             mockip:    mockIp
@@ -475,38 +511,31 @@ exports.handler = (event, context) ->
             latitude:  latitude
             longitude: longitude
             location:  location
-        apiData:
-            mockdarksky:        mdsData
-            mockopenweather:    mowData
-            mockvisualcrossing: mvcData
-        normalized:
-            mockdarksky:        mdsNormalized
-            mockopenweather:    mowNormalized
-            mockvisualcrossing: mvcNormalized
-
-    if 'darksky' in preferredApis
-        data = await getDataFromApi API_SETTINGS.darksky
-        payload.apiData.darksky = data
-        payload.normalized.darksky = normalizeDarkskyData data, 'darksky'
-
-    if 'openweather' in preferredApis
-        data = await getDataFromApi API_SETTINGS.openweather
-        payload.apiData.openweather = data
-        payload.normalized.openweather = normalizeOpenweatherData data, 'openweather'
-
-    if 'visualcrossing' in preferredApis
-        data = await getDataFromApi API_SETTINGS.visualcrossing
-        payload.apiData.visualcrossing = data
-        payload.normalized.visualcrossing = normalizeVisualcrossingData data, 'visualcrossing'
+        apiData: {}
+        normalized: {}
 
     sortedResults = []
     for api in preferredApis
-        result = payload.normalized[api]
-        if result and not result.error
+        result = normalized[api]
+        if result and not result?.error
             sortedResults.push api
 
     console.log sortedResults
-    payload.use = sortedResults
+    use = payload.use = sortedResults?[0]
+
+    # Add minimal data needed to render weather.
+    payload.apiData[use] = apiData[use]
+    payload.normalized[use] = normalized[use]
+
+    # Also send info about errors.
+    for api in preferredApis
+        if apiData?[api]?.error
+            payload.apiData[api] = apiData[api]
+            payload.normalized[api] = normalized[api]
+
+    if debug then for api in preferredApis
+        payload.apiData[api] = apiData[api]
+        payload.normalized[api] = normalized[api]
 
     return await value =  # `await` needed to force async function.
         statusCode: 200,

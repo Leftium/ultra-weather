@@ -129,7 +129,7 @@
                 console.error "ERROR getting data for #{k}:", v
 
         # Construct object with weather data to render:
-        use = data.use[0]
+        use = data.use
 
         if /mock/.test use
             warnMockData = true
