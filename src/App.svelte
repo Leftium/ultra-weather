@@ -13,6 +13,9 @@
     import Chart from 'chart.js'
     import ChartDataLabels from 'chartjs-plugin-datalabels'
 
+    showErrorWarning    = false
+    showMockdataWarning = false
+
     COLORS =
         red:   '#dc322f'
         red80: '#e35b59'
@@ -120,12 +123,21 @@
         window.data = data
         console.log data
 
-
         for k,v of data.apiData
-            if v.error then console.error "ERROR getting data for #{k}:", v
+            if v.error
+                showErrorWarning = true
+                console.error "ERROR getting data for #{k}:", v
 
         # Construct object with weather data to render:
-        payload = Object.assign {}, data.common, data.normalized[data.use[0]]
+        use = data.use[0]
+
+        if /mock/.test use
+            showMockdataWarning = true
+            #preferredApis = queryString.get 'api'
+            #if not /mock/.test(preferredApis) and /(^|,)m/.test(preferredApis)
+
+
+        payload = Object.assign {}, data.common, data.normalized[use]
         payload.labels = []
         if payload.daily
             for day in payload.daily
@@ -428,6 +440,10 @@ main(on:click='{ensureToolTipClosed}' on:touchstart='{ensureToolTipClosed}')
                 #links-container.flex-top.flex-container
                     #links
                         a(href="https://darksky.net/forecast/{data.latitude},{data.longitude}/") Full DarkSky Forecast
+                div
+                    div.center &#x1f6c8; Showing mocked data. To see live data, check API keys and quotas.
+                    div.center &#x26A0;&#xFE0F; Errors getting data. More details in developer console.
+
 
         .view.landscape
             #wide-chart
