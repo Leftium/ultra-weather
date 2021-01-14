@@ -44,7 +44,7 @@ exports.handler = (event, context) ->
             when 'mds', 'mockdarksky'        then 'mockdarksky'
 
             # Default to darksky
-            else 'darksky'
+            else 'mockdarksky'
 
     console.log preferredApis: preferredApis
 
@@ -145,7 +145,7 @@ exports.handler = (event, context) ->
 
     SETTINGS_MOCKOPENWEATHER =
         hasKey: true
-        urls: "http://#{host}/json/#{MOCK_DATA_DARKSKY}.json"
+        urls: "http://#{host}/json/#{MOCK_DATA_OPENWEATHER}.json"
     SETTINGS_OPENWEATHER =
         hasKey: !!OPENWEATHER_API_KEY
         urls: [
@@ -190,34 +190,6 @@ exports.handler = (event, context) ->
         longitude: longitude
         location:  location
 
-    #TODO: Refactor/remove:
-    darkskyUrls = if !!MOCK_DATA_DARKSKY
-        ["http://#{host}/json/#{MOCK_DATA_DARKSKY}.json"]
-    else [
-        "https://api.darksky.net/forecast/#{DARKSKY_API_KEY}/#{latitude},#{longitude}"
-        "https://api.darksky.net/forecast/#{DARKSKY_API_KEY}/#{latitude},#{longitude},#{ts1}"
-        "https://api.darksky.net/forecast/#{DARKSKY_API_KEY}/#{latitude},#{longitude},#{ts2}"
-    ]
-
-    openweatherUrls = if !!MOCK_DATA_OPENWEATHER
-         ["http://#{host}/json/#{MOCK_DATA_OPENWEATHER}.json"]
-    else [
-        "https://api.openweathermap.org/data/2.5/onecall?lat=#{latitude}&lon=#{longitude}"
-        "https://api.openweathermap.org/data/2.5/onecall/timemachine?lat=#{latitude}&lon=#{longitude}&dt=#{ts1}"
-        "https://api.openweathermap.org/data/2.5/onecall/timemachine?lat=#{latitude}&lon=#{longitude}&dt=#{ts2}"
-    ]
-
-    url =  "https://weather.visualcrossing.com/VisualCrossingWebServices/rest"
-    url += "/services/timeline/#{latitude},#{longitude}/#{date1}/#{date2}?"
-    url += "key=#{VISUALCROSSING_API_KEY}&unitGroup=us&include=obs,fcst,current"
-    visualcrossingUrls = if !!MOCK_DATA_VISUALCROSSING
-         ["http://#{host}/json/#{MOCK_DATA_VISUALCROSSING}.json"]
-    else [
-        url
-    ]
-
-    # console.log url1
-
     getDataFromApi = (api) ->
         console.log api
         if not api.hasKey then return null
@@ -240,13 +212,16 @@ exports.handler = (event, context) ->
 
         return data
 
-    dsData = await getDataFromApi API_SETTINGS.darksky
+    # dsData = await getDataFromApi API_SETTINGS.darksky
+    dsData = null
     mdsData = await getDataFromApi API_SETTINGS.mockdarksky
 
-    owData = await getDataFromApi API_SETTINGS.openweather
+    owData = null
+    # owData = await getDataFromApi API_SETTINGS.openweather
     mowData = await getDataFromApi API_SETTINGS.mockopenweather
 
-    vcData = await getDataFromApi API_SETTINGS.visualcrossing
+    vcData = null
+    # vcData = await getDataFromApi API_SETTINGS.visualcrossing
     mvcData = await getDataFromApi API_SETTINGS.mockvisualcrossing
 
     extractFields = (data, isHistorical=false) ->
@@ -298,9 +273,6 @@ exports.handler = (event, context) ->
             summary = summary[0].toUpperCase() + summary[1..]
 
         current = data?.current
-        #console.log icon: current?.weather?[0]?.icon
-        #console.log rain: current?.rain
-        #console.log snow: current?.snow
 
         minTemp = Number.MAX_VALUE
         maxTemp = -Number.MAX_VALUE
@@ -347,24 +319,11 @@ exports.handler = (event, context) ->
             else
                 icons[icon] = value
 
-            # console.log o =
-            #    rain: rain
-            #    snow: snow
-            #    description: hour.weather?[0]?.description
-
-        # console.log totalRain:totalRain
-        # console.log totalSnow:totalSnow
-
         descriptions = Object.entries descriptions
         descriptions.sort (a, b) ->b[1] - a[1]
 
         icons = Object.entries icons
         icons.sort (a, b) ->b[1] - a[1]
-
-
-        # console.log descriptions
-        # console.log icons
-
 
         object =
             time:    data?.current?.dt
@@ -413,66 +372,48 @@ exports.handler = (event, context) ->
             apparentTemperatureMin: apparentTemperatureMin
             apparentTemperatureMax: apparentTemperatureMax
 
-    dsResults =
-        source: 'darksky'
-        data: dsData
-        daily: []
-        ipAddress: ipAddress
-        latitude:  latitude
-        longitude: longitude
-        location:  location
-    if 'darksky' in preferredApis
-        dsResults.summary = dsData?[0]?.daily.summary
-        dsResults.timezone = dsData?[0]?.timezone
-        dsResults.currently = extractFields dsData?[0]?.currently
-        dsResults.daily.push extractFields(dsData?[2]?.daily?.data[0], true)
-        dsResults.daily.push extractFields(dsData?[1]?.daily?.data[0], true)
+    normalizeDarkskyData = (mdsData, source) ->
+        mdsResults =
+            source: source
+            daily: []
 
-        # console.log dsData[2].daily.data[0]
+        mdsResults.summary = mdsData?[0]?.daily.summary
+        mdsResults.timezone = mdsData?[0]?.timezone
+        mdsResults.currently = extractFields mdsData?[0]?.currently
+        mdsResults.daily.push extractFields(mdsData?[2]?.daily?.data[0], true)
+        mdsResults.daily.push extractFields(mdsData?[1]?.daily?.data[0], true)
 
-        dsData?[0]?.daily?.data?.forEach (dsData) ->
-            dsResults.daily.push extractFields(dsData)
+        mdsData?[0]?.daily?.data?.forEach (mdsData) ->
+            mdsResults.daily.push extractFields(mdsData)
 
-    owResults =
-        source: 'openweather'
-        data: owData
-        daily: []
-        ipAddress: ipAddress
-        latitude:  latitude
-        longitude: longitude
-        location:  location
+        return mdsResults
 
-    if 'openweather' in preferredApis
-        owResults.summary = ''
-        owResults.timezone = owData?[0]?.timezone
-        owResults.currently = extractFieldsOw owData?[0]?.current
-
-        # console.log 'JKM'
-        # console.log owData[2]
-        # console.log '[2]current:'
-        # console.log owData[2].current
-        # console.log '[1]current:'
-        # console.log owData[1].current
+    mdsNormalized = normalizeDarkskyData mdsData, 'mockdarksky'
 
 
-        # console.log 'fields[2]'
-        fields = extractFieldsOwHistorical owData?[2]
-        # console.log fields
-        owResults.daily.push fields
+    normalizeOpenweatherData = (mowData, source) ->
+        mowResults =
+            source: 'mockopenweather'
+            data: mowData
+            daily: []
 
-        fields = extractFieldsOwHistorical owData?[1]
-        # console.log 'fields[1]'
-        # console.log fields
-        owResults.daily.push fields
+        mowResults.summary = ''
+        mowResults.timezone = mowData?[0]?.timezone
+        mowResults.currently = extractFieldsOw mowData?[0]?.current
 
-        for day,i in owData?[0].daily
-            # console.log day
-            owResults.daily.push extractFieldsOw day
+        fields = extractFieldsOwHistorical mowData?[2]
+        mowResults.daily.push fields
 
-        # console.log owResults.currently
-        # console.log owResults.daily[0]
+        fields = extractFieldsOwHistorical mowData?[1]
+        mowResults.daily.push fields
 
-    # console.log results
+        for day,i in mowData?[0].daily
+            mowResults.daily.push extractFieldsOw day
+
+        return mowResults
+
+    mowNormalized = normalizeOpenweatherData mowData, 'mockopenweather'
+
 
     extractFieldsVc = (data) ->
         if data?.source isnt 'fcst'
@@ -504,46 +445,48 @@ exports.handler = (event, context) ->
             apparentTemperatureMin: apparentTemperatureMin
             apparentTemperatureMax: apparentTemperatureMax
 
+    normalizeVisualcrossingData = (mvcData, source) ->
+        mvcResults =
+            source: 'mockvisualcrossing'
+            daily: []
 
-    vcResults =
-        source: 'virtualcrossing'
-        data: vcData
-        daily: []
-        ipAddress: ipAddress
-        latitude:  latitude
-        longitude: longitude
-        location:  location
-    if 'visualcrossing' in preferredApis
-        vcResults.summary = ''
-        vcResults.timezone = vcData?[0]?.timezone
-        vcResults.currently = extractFieldsVc vcData?[0]?.currentConditions
+        mvcResults.summary = ''
+        mvcResults.timezone = mvcData?[0]?.timezone
+        mvcResults.currently = extractFieldsVc mvcData?[0]?.currentConditions
 
-        if vcData?[0]?.days
-            for day in vcData?[0]?.days
+        if mvcData?[0]?.days
+            for day in mvcData?[0]?.days
                 fields = extractFieldsVc day
-                vcResults.daily.push fields
+                mvcResults.daily.push fields
 
+        return mvcResults
 
-        # console.log vcResults
+    mvcNormalized = normalizeVisualcrossingData mvcData, 'mockvirtualcrossing'
 
-    results =
-        darksky:         dsResults
-        openweather:     owResults
-        virtualcrossing: vcResults
+    payload =
+        common:
+            mockip:    mockIp
+            ipAddress: ipAddress
+            latitude:  latitude
+            longitude: longitude
+            location:  location
+        apiData:
+            mockdarksky:        mdsData
+            mockopenweather:    mowData
+            mockvisualcrossing: mvcData
+        normalized:
+            mockdarksky:        mdsNormalized
+            mockopenweather:    mowNormalized
+            mockvisualcrossing: mvcNormalized
 
     sortedResults = []
     for api in preferredApis
-        if (result = results[api]) and not result.data.error
-            sortedResults.push result
+        result = payload.normalized[api]
+        if result
+            sortedResults.push api
 
-    # console.log sortedResults
-    # results = sortedResults[0] or {'error': 'No results from weather APIs!'}
-
-    payload =
-        results: sortedResults
-
-    if mockIp
-        results.mockIp = true
+    console.log sortedResults
+    payload.use = sortedResults
 
     return await value =  # `await` needed to force async function.
         statusCode: 200,

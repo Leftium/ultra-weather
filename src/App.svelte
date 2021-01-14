@@ -117,19 +117,11 @@
         response = await axios.get url
         data = await response.data
 
-        if not data.results.length
-            console.log data
-            window.data = data
-            throw 'No results from API calls!'
-
-        #console.log 'DATA: DARKSKY'
-        #console.log JSON.stringify data.dsData, null, 2
-        #console.log 'DATA: OPENWEATHER'
-        #console.log JSON.stringify data.owData, null, 2
         window.data = data
         console.log data
 
-        payload = data.results[0]
+        # Construct object with weather data to render:
+        payload = Object.assign {}, data.common, data.normalized[data.use[0]]
         payload.labels = []
         if payload.daily
             for day in payload.daily
