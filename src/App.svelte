@@ -120,6 +120,10 @@
         window.data = data
         console.log data
 
+
+        for k,v of data.apiData
+            if v.error then console.error "ERROR getting data for #{k}:", v
+
         # Construct object with weather data to render:
         payload = Object.assign {}, data.common, data.normalized[data.use[0]]
         payload.labels = []

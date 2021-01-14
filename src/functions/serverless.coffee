@@ -32,6 +32,9 @@ exports.handler = (event, context) ->
     location = event.queryStringParameters.l
     preferredApis = (event.queryStringParameters.api or '').split ','
 
+    # Fallback on mock API.
+    preferredApis = [...preferredApis, 'mockdarksky']
+
     # Normalize API names/shortcuts to full name.
     preferredApis = preferredApis.map (name) ->
         switch name.toLowerCase()
@@ -191,8 +194,10 @@ exports.handler = (event, context) ->
         location:  location
 
     getDataFromApi = (api) ->
-        console.log api
-        if not api.hasKey then return null
+        if not api.hasKey then return error =
+            error:
+                message: 'API key not configured for API.'
+                api: api
 
         data = null
         if typeof (url = api.urls) is 'string'
@@ -207,21 +212,17 @@ exports.handler = (event, context) ->
                     promises.push response.data
                     data = await Promise.all promises
                 catch error
-                    console.log "ERROR!!"
-                    return error
-
+                    console.log "ERROR: #{error.message}"
+                    return error =
+                        error:
+                            message: error?.message
+                            url: error?.config?.url
         return data
 
-    # dsData = await getDataFromApi API_SETTINGS.darksky
-    dsData = null
+
+
     mdsData = await getDataFromApi API_SETTINGS.mockdarksky
-
-    owData = null
-    # owData = await getDataFromApi API_SETTINGS.openweather
     mowData = await getDataFromApi API_SETTINGS.mockopenweather
-
-    vcData = null
-    # vcData = await getDataFromApi API_SETTINGS.visualcrossing
     mvcData = await getDataFromApi API_SETTINGS.mockvisualcrossing
 
     extractFields = (data, isHistorical=false) ->
@@ -446,6 +447,9 @@ exports.handler = (event, context) ->
             apparentTemperatureMax: apparentTemperatureMax
 
     normalizeVisualcrossingData = (mvcData, source) ->
+        if mvcData.error
+            return null
+
         mvcResults =
             source: 'mockvisualcrossing'
             daily: []
@@ -479,10 +483,25 @@ exports.handler = (event, context) ->
             mockopenweather:    mowNormalized
             mockvisualcrossing: mvcNormalized
 
+    if 'darksky' in preferredApis
+        data = await getDataFromApi API_SETTINGS.darksky
+        payload.apiData.darksky = data
+        payload.normalized.darksky = normalizeDarkskyData data, 'darksky'
+
+    if 'openweather' in preferredApis
+        data = await getDataFromApi API_SETTINGS.openweather
+        payload.apiData.openweather = data
+        payload.normalized.openweather = normalizeOpenweatherData data, 'openweather'
+
+    if 'visualcrossing' in preferredApis
+        data = await getDataFromApi API_SETTINGS.visualcrossing
+        payload.apiData.visualcrossing = data
+        payload.normalized.visualcrossing = normalizeVisualcrossingData data, 'visualcrossing'
+
     sortedResults = []
     for api in preferredApis
         result = payload.normalized[api]
-        if result
+        if result and not result.error
             sortedResults.push api
 
     console.log sortedResults
