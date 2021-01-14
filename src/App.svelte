@@ -13,8 +13,8 @@
     import Chart from 'chart.js'
     import ChartDataLabels from 'chartjs-plugin-datalabels'
 
-    showErrorWarning    = false
-    showMockdataWarning = false
+    warnError    = false
+    warnMockData = false
 
     COLORS =
         red:   '#dc322f'
@@ -125,14 +125,14 @@
 
         for k,v of data.apiData
             if v.error
-                showErrorWarning = true
+                warnError = true
                 console.error "ERROR getting data for #{k}:", v
 
         # Construct object with weather data to render:
         use = data.use[0]
 
         if /mock/.test use
-            showMockdataWarning = true
+            warnMockData = true
             #preferredApis = queryString.get 'api'
             #if not /mock/.test(preferredApis) and /(^|,)m/.test(preferredApis)
 
@@ -440,9 +440,11 @@ main(on:click='{ensureToolTipClosed}' on:touchstart='{ensureToolTipClosed}')
                 #links-container.flex-top.flex-container
                     #links
                         a(href="https://darksky.net/forecast/{data.latitude},{data.longitude}/") Full DarkSky Forecast
-                div
-                    div.center &#x1f6c8; Showing mocked data. To see live data, check API keys and quotas.
-                    div.center &#x26A0;&#xFE0F; Errors getting data. More details in developer console.
+                div.center
+                    span(class:hide='{!(warnError||warnMockData)}') &#x26A0;&#xFE0F;&nbsp;
+                    span(class:hide='{!warnMockData}') Showing mocked data.&nbsp;
+                    span(class:hide='{!warnError}') Errors getting data.&nbsp;
+                    span(class:hide='{!(warnError||warnMockData)}') (More details in developer console.)
 
 
         .view.landscape
@@ -463,6 +465,10 @@ main(on:click='{ensureToolTipClosed}' on:touchstart='{ensureToolTipClosed}')
 <style>
     main {
         height: 100%;
+    }
+
+    .hide {
+        display:none;
     }
 
     *:not(input):not(textarea) {
