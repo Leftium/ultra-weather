@@ -4,9 +4,10 @@ import commonjs from '@rollup/plugin-commonjs';
 import livereload from 'rollup-plugin-livereload';
 import { terser } from 'rollup-plugin-terser';
 
-import coffeescript from 'rollup-plugin-coffee-script'
+import coffeescript from 'rollup-plugin-coffee-script';
+import json from '@rollup/plugin-json';
 
-import autoPreprocess from 'svelte-preprocess'
+import autoPreprocess from 'svelte-preprocess';
 
 const production = !process.env.ROLLUP_WATCH;
 
@@ -40,6 +41,7 @@ export default [{
     },
 	plugins: [
 		coffeescript(),
+		json()
     ]
 }, {
 	input: 'src/main.js',

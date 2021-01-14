@@ -1,6 +1,10 @@
 import axios from 'axios'
 import dayjs from 'dayjs'
 
+import mockDataDarksky        from './json/mock-data-darksky.json'
+import mockDataOpenweather    from './json/mock-data-openweather.json'
+import mockDataVisualcrossing from './json/mock-data-visualcrossing.json'
+
 exports.handler = (event, context) ->
     # console.log """\ncontext: #{JSON.stringify context, null, 2}, event: #{JSON.stringify event, null, 2}\n"""
 
@@ -126,7 +130,7 @@ exports.handler = (event, context) ->
     # Settings for each API above
     SETTINGS_MOCKDARKSKY =
         hasKey: true
-        urls: "http://#{host}/json/mock-data-darksky.json"
+        data: mockDataDarksky
     SETTINGS_DARKSKY =
         hasKey: !!DARKSKY_API_KEY
         urls: [
@@ -142,7 +146,7 @@ exports.handler = (event, context) ->
 
     SETTINGS_MOCKOPENWEATHER =
         hasKey: true
-        urls: "http://#{host}/json/mock-data-openweather.json"
+        data: mockDataOpenweather
     SETTINGS_OPENWEATHER =
         hasKey: !!OPENWEATHER_API_KEY
         urls: [
@@ -160,7 +164,8 @@ exports.handler = (event, context) ->
 
     SETTINGS_MOCKVISUALCROSSING =
         hasKey: true
-        urls: "http://#{host}/json/mock-data-visualcrossing.json"
+        data: mockDataVisualcrossing
+    SETTINGS_OPENWEATHER =
     SETTINGS_VISUALCROSSING =
         hasKey: !!VISUALCROSSING_API_KEY
         urls: [
@@ -188,6 +193,8 @@ exports.handler = (event, context) ->
         location:  location
 
     getDataFromApi = (api) ->
+        if api.data then return api.data
+
         if not api.hasKey then return error =
             error:
                 message: 'API key not configured for API.'
