@@ -149,18 +149,18 @@ exports.handler = (event, context) ->
 
         data = null
         promises = []
-        for url in api.urls
-            console.log url
-            try
-                response = await axios.get url, api.axiosConfig
-                promises.push response.data
-                data = await Promise.all promises
-            catch error
-                console.log "ERROR: #{error.message}"
-                return error =
-                    error:
-                        message: error?.message
-                        url: error?.config?.url
+        try
+            for url in api.urls
+                console.log url
+                promises.push axios.get url, api.axiosConfig
+            responses = await Promise.all promises
+            data = (r.data for r in responses)
+        catch error
+            console.log "ERROR: #{error.message}"
+            return error =
+                error:
+                    message: error?.message
+                    url: error?.config?.url
         return data
 
     extractFields = (data, isHistorical=false) ->
