@@ -4,6 +4,7 @@ html, body {
     margin: 0;
     font-family: helvetica, arial, sans-serif;
     background-color: #fdf6e3 ;
+    user-select: none;
 }
 
 a {
