@@ -20,18 +20,20 @@ exports.handler = (event, context) ->
 
     host = event.headers['host']
 
+    # Get an IP address that the geocoding API can use.
+    # netlify dev localhost IP address is weird.
     ipAddress = event.headers['client-ip']
-
     if (ipAddress is '::1') or !!MOCK_IP_ADDRESS
         ipAddress = MOCK_IP_ADDRESS
-        if not !!ipAddress then ipAddress = '110.47.160.191'
+        if not !!ipAddress then ipAddress = '1.1.1.1'
         mockIp = true
 
+    # Get the list of preferred API's.
     location = event.queryStringParameters.l
-    apis = (event.queryStringParameters.api or '').split ','
+    preferredApis = (event.queryStringParameters.api or '').split ','
 
-    # Normalize API names to two letter codes.
-    apis = apis.map (name) ->
+    # Normalize API names/shortcuts to full name.
+    preferredApis = preferredApis.map (name) ->
         switch name.toLowerCase()
             when 'ow', 'openweather'    then 'openweather'
             when 'vc', 'visualcrossing' then 'visualcrossing'
@@ -43,7 +45,7 @@ exports.handler = (event, context) ->
 
             else 'darksky'
 
-    console.log apis: apis
+    console.log preferredApis: preferredApis
 
     console.log ['location:', location]
     if !!location  # Ensure location non-empty string.
@@ -159,7 +161,7 @@ exports.handler = (event, context) ->
         return data = response.data
 
     dsData = []
-    if 'darksky' in apis
+    if 'darksky' in preferredApis
         console.log 'CALL APIS: DARKSKY'
         promises = []
         for url in darkskyUrls
@@ -172,7 +174,7 @@ exports.handler = (event, context) ->
 
 
     owData = []
-    if 'openweather' in apis
+    if 'openweather' in preferredApis
         console.log 'CALL APIS: OPENWEATHER'
         promises = []
         for url in openweatherUrls
@@ -184,7 +186,7 @@ exports.handler = (event, context) ->
             owData.mockData = true
 
     vcData = []
-    if 'visualcrossing' in apis
+    if 'visualcrossing' in preferredApis
         console.log 'CALL APIS: VISUALCROSSING'
         promises = []
         try
@@ -372,7 +374,7 @@ exports.handler = (event, context) ->
         latitude:  latitude
         longitude: longitude
         location:  location
-    if 'darksky' in apis
+    if 'darksky' in preferredApis
         dsResults.summary = dsData?[0]?.daily.summary
         dsResults.timezone = dsData?[0]?.timezone
         dsResults.currently = extractFields dsData?[0]?.currently
@@ -393,7 +395,7 @@ exports.handler = (event, context) ->
         longitude: longitude
         location:  location
 
-    if 'openweather' in apis
+    if 'openweather' in preferredApis
         owResults.summary = ''
         owResults.timezone = owData?[0]?.timezone
         owResults.currently = extractFieldsOw owData?[0]?.current
@@ -464,7 +466,7 @@ exports.handler = (event, context) ->
         latitude:  latitude
         longitude: longitude
         location:  location
-    if 'visualcrossing' in apis
+    if 'visualcrossing' in preferredApis
         vcResults.summary = ''
         vcResults.timezone = vcData?[0]?.timezone
         vcResults.currently = extractFieldsVc vcData?[0]?.currentConditions
@@ -483,8 +485,8 @@ exports.handler = (event, context) ->
         virtualcrossing: vcResults
 
     sortedResults = []
-    for a in apis
-        if (result = results[a]) and not result.data.error
+    for api in preferredApis
+        if (result = results[api]) and not result.data.error
             sortedResults.push result
 
     # console.log sortedResults
