@@ -39,47 +39,56 @@ exports.handler = (event, context) ->
             when 'vc', 'visualcrossing' then 'visualcrossing'
             when 'ds', 'darksky'        then 'darksky'
 
-            when 'mow', 'mockopenweather'    then 'mockpenweather'
+            when 'mow', 'mockopenweather'    then 'mockopenweather'
             when 'mvc', 'mockvisualcrossing' then 'mockvisualcrossing'
             when 'mds', 'mockdarksky'        then 'mockdarksky'
 
+            # Default to darksky
             else 'darksky'
 
     console.log preferredApis: preferredApis
 
+    SECONDS_PER_DAY = 24*60*60
+
+    unixEpoch = Math.floor(Date.now() / 1000)
+    ts1 = unixEpoch - SECONDS_PER_DAY    # Yesterday.
+    ts2 = unixEpoch - SECONDS_PER_DAY*2  # Day befor yesterday.
+
+    date1 = dayjs.unix(unixEpoch - 2*SECONDS_PER_DAY).format 'YYYY-M-D' # Day before yesterday.
+    date2 = dayjs.unix(unixEpoch + 7*SECONDS_PER_DAY).format 'YYYY-M-D' # One week into future.
+
+        # If a location passed geocode it to a lat/lon.
     console.log ['location:', location]
     if !!location  # Ensure location non-empty string.
         url = "http://api.openweathermap.org/geo/1.0/direct?q=#{location}&limit=5&appid=#{OPENWEATHER_API_KEY}"
 
         try
             response = await axios.get url
-            data = response.data
+            places = response.data
             # Sort results to prefer some countries
-            data?.sort (a, b) ->
+            places?.sort (a, b) ->
                 countryTiers = US: 1, CA: 2, GB: 3
 
                 aTier = countryTiers[a.country] or 99
                 bTier = countryTiers[b.country] or 99
 
                 return aTier - bTier
-
-            # console.log data
         catch error
             console.log error
 
-
-
-    if place = data?[0]
+    if place = places?[0]
+        # Geocode API was successful. Use the first place from the results.
         latitude  = place.lat
         longitude = place.lon
+
+        # Construct location name from place.
         location = "#{place.name}"
         if place.state
             location += ", #{place.state}"
-
         if place.country
             location += " [#{place.country}]"
-        # location = "#{place.name}"
     else
+        # Geocode lat/long from IP address.
         url = "http://ip-api.com/json/#{ipAddress}"
 
         response = await axios.get url
@@ -90,21 +99,98 @@ exports.handler = (event, context) ->
         longitude = data.lon
         location = data.city or data.regionName or data.country
 
+    makeDarkSkyUrl = (latitude, longitude, timestamp) ->
+        key = DARKSKY_API_KEY
+        url = "https://api.darksky.net/forecast/#{key}/#{latitude},#{longitude}"
+        if timestamp
+            url += ",#{timestamp}"
+        return url
+
+    makeOpenWeatherUrl = (latitude, longitude, timestamp) ->
+        key = OPENWEATHER_API_KEY
+        url = "https://api.openweathermap.org/data/2.5/onecall"
+
+        if timestamp then url += '/timemachine'
+        url += "?lat=#{latitude}&lon=#{longitude}"
+        if timestamp then url += "&dt=#{timestamp}"
+
+        return url
+
+    makeVisualCrossingUrl = (latitude, longitude, date1, date2) ->
+        url = 'https://weather.visualcrossing.com/'
+        url += 'VisualCrossingWebServices/rest/services/timeline/'
+        url += "#{latitude},#{longitude}/#{date1}/#{date2}/"
+
+        return url
+
+
+
+
+    # Settings for each API above
+    SETTINGS_MOCKDARKSKY =
+        hasKey: true
+        urls: "http://#{host}/json/#{MOCK_DATA_DARKSKY}.json"
+    SETTINGS_DARKSKY =
+        hasKey: !!DARKSKY_API_KEY
+        urls: [
+            makeDarkSkyUrl latitude, longitude
+            makeDarkSkyUrl latitude, longitude, ts1
+            makeDarkSkyUrl latitude, longitude, ts2
+        ]
+        axiosConfig:
+            headers:
+                'Accept-Encoding': 'gzip'
+            params:
+                exclude: 'minutely,hourly,alerts,flags'
+
+    SETTINGS_MOCKOPENWEATHER =
+        hasKey: true
+        urls: "http://#{host}/json/#{MOCK_DATA_DARKSKY}.json"
+    SETTINGS_OPENWEATHER =
+        hasKey: !!OPENWEATHER_API_KEY
+        urls: [
+            makeOpenWeatherUrl latitude, longitude
+            makeOpenWeatherUrl latitude, longitude, ts1
+            makeOpenWeatherUrl latitude, longitude, ts2
+        ]
+        axiosConfig:
+            headers:
+                'Accept-Encoding': 'gzip'
+            params:
+                exclude: 'minutely,hourly,alerts'
+                units: 'imperial'
+                appid: OPENWEATHER_API_KEY
+
+    SETTINGS_MOCKVISUALCROSSING =
+        hasKey: true
+        urls: "http://#{host}/json/#{MOCK_DATA_VISUALCROSSING}.json"
+    SETTINGS_VISUALCROSSING =
+        hasKey: !!VISUALCROSSING_API_KEY
+        urls: [
+            makeVisualCrossingUrl latitude, longitude, date1, date2
+        ]
+        axiosConfig:
+            headers:
+                'Accept-Encoding': 'gzip'
+            params:
+                include: 'obs,fcst,current'
+                unitGroup: 'us'
+                key: VISUALCROSSING_API_KEY
+
+    API_SETTINGS =
+        mockdarksky:        SETTINGS_MOCKDARKSKY
+        darksky:            SETTINGS_DARKSKY
+        mockopenweather:    SETTINGS_MOCKOPENWEATHER
+        openweather:        SETTINGS_OPENWEATHER
+        mockvisualcrossing: SETTINGS_MOCKVISUALCROSSING
+        visualcrossing:     SETTINGS_VISUALCROSSING
+
     console.log vars =
         latitude: latitude
         longitude: longitude
         location:  location
 
-
-    SECONDS_PER_DAY = 24*60*60
-
-    unixEpoch = Math.floor(Date.now() / 1000)
-    ts1 = unixEpoch - SECONDS_PER_DAY
-    ts2 = unixEpoch - SECONDS_PER_DAY*2
-
-    date1 = dayjs.unix(unixEpoch - 2*SECONDS_PER_DAY).format 'YYYY-M-D'
-    date2 = dayjs.unix(unixEpoch + 7*SECONDS_PER_DAY).format 'YYYY-M-D'
-
+    #TODO: Refactor/remove:
     darkskyUrls = if !!MOCK_DATA_DARKSKY
         ["http://#{host}/json/#{MOCK_DATA_DARKSKY}.json"]
     else [
@@ -132,75 +218,36 @@ exports.handler = (event, context) ->
 
     # console.log url1
 
-    callDarkSkyApi = (url) ->
-        response = await axios.get url, config =
-            headers:
-                'Accept-Encoding': 'gzip'
-            params:
-                exclude: 'minutely,alerts,flags'
+    getDataFromApi = (api) ->
+        console.log api
+        if not api.hasKey then return null
 
-        data = response.data
+        data = null
+        if typeof (url = api.urls) is 'string'
+            response = await axios.get url, api.axiosConfig
+            data = await response.data
+        else
+            promises = []
+            for url in api.urls
+                console.log url
+                try
+                    response = await axios.get url, api.axiosConfig
+                    promises.push response.data
+                    data = await Promise.all promises
+                catch error
+                    console.log "ERROR!!"
+                    return error
 
-    callOpenWeatherApi = (url) ->
-        if url.match /openweathermap.org/
-            url += "&units=imperial&exclude=minutely,hourly,alerts&"
-            url += "appid=#{OPENWEATHER_API_KEY}"
+        return data
 
-        response = await axios.get url, config =
-            headers:
-                'Accept-Encoding': 'gzip'
+    dsData = await getDataFromApi API_SETTINGS.darksky
+    mdsData = await getDataFromApi API_SETTINGS.mockdarksky
 
-        data = response.data
+    owData = await getDataFromApi API_SETTINGS.openweather
+    mowData = await getDataFromApi API_SETTINGS.mockopenweather
 
-    callVisualCrossingApi = (url) ->
-        console.log url
-
-        response = await axios.get url, config =
-            headers:
-                'Accept-Encoding': 'gzip'
-        return data = response.data
-
-    dsData = []
-    if 'darksky' in preferredApis
-        console.log 'CALL APIS: DARKSKY'
-        promises = []
-        for url in darkskyUrls
-            promises.push callDarkSkyApi(url)
-
-        dsData = await Promise.all promises
-        if !!MOCK_DATA_DARKSKY
-            dsData = dsData[0]
-            dsData.mockData = true
-
-
-    owData = []
-    if 'openweather' in preferredApis
-        console.log 'CALL APIS: OPENWEATHER'
-        promises = []
-        for url in openweatherUrls
-            promises.push callOpenWeatherApi(url)
-
-        owData = await Promise.all promises
-        if !!MOCK_DATA_OPENWEATHER
-            owData = owData[0]
-            owData.mockData = true
-
-    vcData = []
-    if 'visualcrossing' in preferredApis
-        console.log 'CALL APIS: VISUALCROSSING'
-        promises = []
-        try
-            for url in visualcrossingUrls
-                promises.push callVisualCrossingApi(url)
-            vcData = await Promise.all promises
-        catch error
-            console.log 'JKM ERROR A'
-            console.log vcData
-            vcData.error = error
-
-        if !!MOCK_DATA_VISUALCROSSING
-            vcData = vcData[0]
-            vcData.mockData = true
+    vcData = await getDataFromApi API_SETTINGS.visualcrossing
+    mvcData = await getDataFromApi API_SETTINGS.mockvisualcrossing
 
     extractFields = (data, isHistorical=false) ->
         if isHistorical
