@@ -2,7 +2,7 @@ import axios from 'axios'
 import dayjs from 'dayjs'
 
 exports.handler = (event, context) ->
-    console.log """\ncontext: #{JSON.stringify context, null, 2}, event: #{JSON.stringify event, null, 2}\n"""
+    # console.log """\ncontext: #{JSON.stringify context, null, 2}, event: #{JSON.stringify event, null, 2}\n"""
 
     MOCK_IP_ADDRESS          = process.env.MOCK_IP_ADDRESS
     MOCK_DATA_DARKSKY        = process.env.MOCK_DATA_DARKSKY
@@ -28,6 +28,17 @@ exports.handler = (event, context) ->
         mockIp = true
 
     location = event.queryStringParameters.l
+    apis = (event.queryStringParameters.api or '').split ','
+
+    # Normalize API names to two letter codes.
+    apis = apis.map (name) ->
+        switch name.toLowerCase()
+            when 'ow', 'openweather'    then 'ow'
+            when 'vc', 'visualcrossing' then 'vc'
+            else 'ds'
+
+    console.log apis
+
     console.log ['location:', location]
     if !!location  # Ensure location non-empty string.
         url = "http://api.openweathermap.org/geo/1.0/direct?q=#{location}&limit=5&appid=#{OPENWEATHER_API_KEY}"
@@ -135,50 +146,53 @@ exports.handler = (event, context) ->
 
     callVisualCrossingApi = (url) ->
         console.log url
+
+        response = await axios.get url, config =
+            headers:
+                'Accept-Encoding': 'gzip'
+        return data = response.data
+
+    dsData = []
+    if 'ds' in apis
+        console.log 'CALL APIS: DARKSKY'
+        promises = []
+        for url in darkskyUrls
+            promises.push callDarkSkyApi(url)
+
+        dsData = await Promise.all promises
+        if !!MOCK_DATA_DARKSKY
+            dsData = dsData[0]
+            dsData.mockData = true
+
+
+    owData = []
+    if 'ow' in apis
+        console.log 'CALL APIS: OPENWEATHER'
+        promises = []
+        for url in openweatherUrls
+            promises.push callOpenWeatherApi(url)
+
+        owData = await Promise.all promises
+        if !!MOCK_DATA_OPENWEATHER
+            owData = owData[0]
+            owData.mockData = true
+
+    vcData = []
+    if 'vc' in apis
+        console.log 'CALL APIS: VISUALCROSSING'
+        promises = []
         try
-            response = await axios.get url, config =
-                headers:
-                    'Accept-Encoding': 'gzip'
-            data = response.data
+            for url in visualcrossingUrls
+                promises.push callVisualCrossingApi(url)
+            vcData = await Promise.all promises
         catch error
-            console.log error
-    promises = []
-    for url in darkskyUrls
-        promises.push callDarkSkyApi(url)
+            console.log 'JKM ERROR A'
+            console.log vcData
+            vcData.error = error
 
-    dsData = await Promise.all promises
-    if !!MOCK_DATA_DARKSKY
-        dsData = dsData[0]
-        dsData.mockData = true
-    # console.log 'START DARKSKY DATA'
-    # console.log  JSON.stringify(dsData)
-    # console.log 'END DARKSKY DATA'
-
-
-    promises = []
-    for url in openweatherUrls
-        promises.push callOpenWeatherApi(url)
-
-    owData = await Promise.all promises
-    if !!MOCK_DATA_OPENWEATHER
-        owData = owData[0]
-        owData.mockData = true
-    # console.log 'START OPENWEATHER DATA'
-    # console.log owData
-    # console.log 'END OPENWEATHER DATA'
-
-
-    promises = []
-    for url in visualcrossingUrls
-        promises.push callVisualCrossingApi(url)
-
-    vcData = await Promise.all promises
-    if !!MOCK_DATA_VISUALCROSSING
-        vcData = vcData[0]
-        vcData.mockData = true
-    # console.log 'START VISUALCROSSING DATA'
-    # console.log  JSON.stringify(dsData)
-    # console.log 'END VISUALCROSSING DATA'
+        if !!MOCK_DATA_VISUALCROSSING
+            vcData = vcData[0]
+            vcData.mockData = true
 
     extractFields = (data, isHistorical=false) ->
         if isHistorical
@@ -344,53 +358,64 @@ exports.handler = (event, context) ->
             apparentTemperatureMin: apparentTemperatureMin
             apparentTemperatureMax: apparentTemperatureMax
 
-
     dsResults =
+        key: 'ds'
+        data: dsData
         daily: []
+        ipAddress: ipAddress
+        latitude:  latitude
+        longitude: longitude
+        location:  location
+    if 'ds' in apis
+        dsResults.summary = dsData?[0]?.daily.summary
+        dsResults.timezone = dsData?[0]?.timezone
+        dsResults.currently = extractFields dsData?[0]?.currently
+        dsResults.daily.push extractFields(dsData?[2]?.daily?.data[0], true)
+        dsResults.daily.push extractFields(dsData?[1]?.daily?.data[0], true)
 
+        # console.log dsData[2].daily.data[0]
 
-    dsResults.summary = dsData[0].daily.summary
-    dsResults.timezone = dsData[0].timezone
-    dsResults.currently = extractFields dsData[0].currently
-    dsResults.daily.push extractFields(dsData[2].daily.data[0], true)
-    dsResults.daily.push extractFields(dsData[1].daily.data[0], true)
-
-    # console.log dsData[2].daily.data[0]
-
-    dsData[0].daily.data.forEach (dsData) ->
-        dsResults.daily.push extractFields(dsData)
+        dsData?[0]?.daily?.data?.forEach (dsData) ->
+            dsResults.daily.push extractFields(dsData)
 
     owResults =
+        key: 'ow'
+        data: owData
         daily: []
+        ipAddress: ipAddress
+        latitude:  latitude
+        longitude: longitude
+        location:  location
 
-    owResults.summary = ''
-    owResults.timezone = owData[0].timezone
-    owResults.currently = extractFieldsOw owData[0].current
+    if 'ow' in apis
+        owResults.summary = ''
+        owResults.timezone = owData?[0]?.timezone
+        owResults.currently = extractFieldsOw owData?[0]?.current
 
-    # console.log 'JKM'
-    # console.log owData[2]
-    # console.log '[2]current:'
-    # console.log owData[2].current
-    # console.log '[1]current:'
-    # console.log owData[1].current
+        # console.log 'JKM'
+        # console.log owData[2]
+        # console.log '[2]current:'
+        # console.log owData[2].current
+        # console.log '[1]current:'
+        # console.log owData[1].current
 
 
-    # console.log 'fields[2]'
-    fields = extractFieldsOwHistorical owData[2]
-    # console.log fields
-    owResults.daily.push fields
+        # console.log 'fields[2]'
+        fields = extractFieldsOwHistorical owData?[2]
+        # console.log fields
+        owResults.daily.push fields
 
-    fields = extractFieldsOwHistorical owData[1]
-    # console.log 'fields[1]'
-    # console.log fields
-    owResults.daily.push fields
+        fields = extractFieldsOwHistorical owData?[1]
+        # console.log 'fields[1]'
+        # console.log fields
+        owResults.daily.push fields
 
-    for day,i in owData[0].daily
-        # console.log day
-        owResults.daily.push extractFieldsOw day
+        for day,i in owData?[0].daily
+            # console.log day
+            owResults.daily.push extractFieldsOw day
 
-    # console.log owResults.currently
-    # console.log owResults.daily[0]
+        # console.log owResults.currently
+        # console.log owResults.daily[0]
 
     # console.log results
 
@@ -426,42 +451,46 @@ exports.handler = (event, context) ->
 
 
     vcResults =
+        key: 'vc'
+        data: vcData
         daily: []
+        ipAddress: ipAddress
+        latitude:  latitude
+        longitude: longitude
+        location:  location
+    if 'vc' in apis
+        vcResults.summary = ''
+        vcResults.timezone = vcData?[0]?.timezone
+        vcResults.currently = extractFieldsVc vcData?[0]?.currentConditions
 
-    vcResults.summary = ''
-    vcResults.timezone = vcData[0].timezone
-    vcResults.currently = extractFieldsVc vcData[0].currentConditions
-
-    for day in vcData[0].days
-        fields = extractFieldsVc day
-        vcResults.daily.push fields
+        if vcData?[0]?.days
+            for day in vcData?[0]?.days
+                fields = extractFieldsVc day
+                vcResults.daily.push fields
 
 
-    # console.log vcResults
+        # console.log vcResults
 
-    api = event.queryStringParameters.api or ''
+    results =
+        ds: dsResults
+        ow: owResults
+        vc: vcResults
 
-    results = null
-    if not results and api in ['ds', 'darksky', '']
-        results = dsResults
-    if not results and api in ['ow', 'openweather']
-        results = owResults
-    if not results and api in ['vc', 'visualcrossing']
-        results = vcResults
+    sortedResults = []
+    for a in apis
+        if (result = results[a]) and not result.data.error
+            sortedResults.push result
 
-    results.dsData = dsData
-    results.owData = owData
-    results.vcData = vcData
+    # console.log sortedResults
+    # results = sortedResults[0] or {'error': 'No results from weather APIs!'}
 
-    results.ipAddress = ipAddress
-    results.latitude  = latitude
-    results.longitude = longitude
-    results.location  = location
+    payload =
+        results: sortedResults
 
     if mockIp
         results.mockIp = true
 
     return await value =  # `await` needed to force async function.
         statusCode: 200,
-        body: JSON.stringify results, null, 2
+        body: JSON.stringify payload, null, 2
 

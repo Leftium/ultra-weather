@@ -113,24 +113,35 @@
         queryParams.set 'l', loc
 
         url = "/.netlify/functions/serverless/?#{queryParams.toString()}"
+
         response = await axios.get url
         data = await response.data
+
+        if not data.results.length
+            console.log data
+            window.data = data
+            throw 'No results from API calls!'
 
         #console.log 'DATA: DARKSKY'
         #console.log JSON.stringify data.dsData, null, 2
         #console.log 'DATA: OPENWEATHER'
         #console.log JSON.stringify data.owData, null, 2
         window.data = data
+        console.log data
 
-        data.labels = []
-        for day in data.daily
-            jsDate = dayjs.unix(day.time).tz(data.timezone)
-            if jsDate.isSame now, 'day'
-                data.labels.push "Today"
-            else
-                data.labels.push jsDate.format 'dd-DD'
+        payload = data.results[0]
+        payload.labels = []
+        if payload.daily
+            for day in payload.daily
+                jsDate = dayjs.unix(day.time).tz(payload.timezone)
+                if jsDate.isSame now, 'day'
+                    payload.labels.push "Today"
+                else
+                    payload.labels.push jsDate.format 'dd-DD'
 
-        return data
+        window.payload = payload
+        console.log payload
+        return payload
 
 
 
