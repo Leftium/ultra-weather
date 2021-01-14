@@ -33,11 +33,17 @@ exports.handler = (event, context) ->
     # Normalize API names to two letter codes.
     apis = apis.map (name) ->
         switch name.toLowerCase()
-            when 'ow', 'openweather'    then 'ow'
-            when 'vc', 'visualcrossing' then 'vc'
-            else 'ds'
+            when 'ow', 'openweather'    then 'openweather'
+            when 'vc', 'visualcrossing' then 'visualcrossing'
+            when 'ds', 'darksky'        then 'darksky'
 
-    console.log apis
+            when 'mow', 'mockopenweather'    then 'mockpenweather'
+            when 'mvc', 'mockvisualcrossing' then 'mockvisualcrossing'
+            when 'mds', 'mockdarksky'        then 'mockdarksky'
+
+            else 'darksky'
+
+    console.log apis: apis
 
     console.log ['location:', location]
     if !!location  # Ensure location non-empty string.
@@ -153,7 +159,7 @@ exports.handler = (event, context) ->
         return data = response.data
 
     dsData = []
-    if 'ds' in apis
+    if 'darksky' in apis
         console.log 'CALL APIS: DARKSKY'
         promises = []
         for url in darkskyUrls
@@ -166,7 +172,7 @@ exports.handler = (event, context) ->
 
 
     owData = []
-    if 'ow' in apis
+    if 'openweather' in apis
         console.log 'CALL APIS: OPENWEATHER'
         promises = []
         for url in openweatherUrls
@@ -178,7 +184,7 @@ exports.handler = (event, context) ->
             owData.mockData = true
 
     vcData = []
-    if 'vc' in apis
+    if 'visualcrossing' in apis
         console.log 'CALL APIS: VISUALCROSSING'
         promises = []
         try
@@ -359,14 +365,14 @@ exports.handler = (event, context) ->
             apparentTemperatureMax: apparentTemperatureMax
 
     dsResults =
-        key: 'ds'
+        source: 'darksky'
         data: dsData
         daily: []
         ipAddress: ipAddress
         latitude:  latitude
         longitude: longitude
         location:  location
-    if 'ds' in apis
+    if 'darksky' in apis
         dsResults.summary = dsData?[0]?.daily.summary
         dsResults.timezone = dsData?[0]?.timezone
         dsResults.currently = extractFields dsData?[0]?.currently
@@ -379,7 +385,7 @@ exports.handler = (event, context) ->
             dsResults.daily.push extractFields(dsData)
 
     owResults =
-        key: 'ow'
+        source: 'openweather'
         data: owData
         daily: []
         ipAddress: ipAddress
@@ -387,7 +393,7 @@ exports.handler = (event, context) ->
         longitude: longitude
         location:  location
 
-    if 'ow' in apis
+    if 'openweather' in apis
         owResults.summary = ''
         owResults.timezone = owData?[0]?.timezone
         owResults.currently = extractFieldsOw owData?[0]?.current
@@ -451,14 +457,14 @@ exports.handler = (event, context) ->
 
 
     vcResults =
-        key: 'vc'
+        source: 'virtualcrossing'
         data: vcData
         daily: []
         ipAddress: ipAddress
         latitude:  latitude
         longitude: longitude
         location:  location
-    if 'vc' in apis
+    if 'visualcrossing' in apis
         vcResults.summary = ''
         vcResults.timezone = vcData?[0]?.timezone
         vcResults.currently = extractFieldsVc vcData?[0]?.currentConditions
@@ -472,9 +478,9 @@ exports.handler = (event, context) ->
         # console.log vcResults
 
     results =
-        ds: dsResults
-        ow: owResults
-        vc: vcResults
+        darksky:         dsResults
+        openweather:     owResults
+        virtualcrossing: vcResults
 
     sortedResults = []
     for a in apis
