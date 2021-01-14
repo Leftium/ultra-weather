@@ -9,13 +9,12 @@ import mockDataVisualcrossing from './json/mock-data-visualcrossing.json'
 exports.handler = (event, context) ->
     # console.log """\ncontext: #{JSON.stringify context, null, 2}, event: #{JSON.stringify event, null, 2}\n"""
 
-    MOCK_IP_ADDRESS          = process.env.MOCK_IP_ADDRESS
-    DARKSKY_API_KEY          = process.env.DARK_SKY_API_KEY
-    OPENWEATHER_API_KEY      = process.env.OPENWEATHER_API_KEY
-    VISUALCROSSING_API_KEY   = process.env.VISUALCROSSING_API_KEY
+    MOCK_IP_ADDRESS        = process.env.MOCK_IP_ADDRESS
+    DARKSKY_API_KEY        = process.env.DARK_SKY_API_KEY
+    OPENWEATHER_API_KEY    = process.env.OPENWEATHER_API_KEY
+    VISUALCROSSING_API_KEY = process.env.VISUALCROSSING_API_KEY
 
-    console.log o =
-        MOCK_IP_ADDRESS: MOCK_IP_ADDRESS
+    console.log MOCK_IP_ADDRESS: MOCK_IP_ADDRESS
 
     host = event.headers['host']
 
@@ -68,7 +67,7 @@ exports.handler = (event, context) ->
     date1 = dayjs.unix(unixEpoch - 2*SECONDS_PER_DAY).format 'YYYY-M-D' # Day before yesterday.
     date2 = dayjs.unix(unixEpoch + 7*SECONDS_PER_DAY).format 'YYYY-M-D' # One week into future.
 
-        # If a location passed geocode it to a lat/lon.
+    # If a location passed, geocode it to a lat/lon.
     console.log ['location:', location]
     if !!location  # Ensure location non-empty string.
         url = "http://api.openweathermap.org/geo/1.0/direct?q=#{location}&limit=5&appid=#{OPENWEATHER_API_KEY}"
@@ -343,6 +342,8 @@ exports.handler = (event, context) ->
 
 
     normalizeDarkskyData = (mdsData, source) ->
+        if mdsData.error then return null
+
         mdsResults =
             source: source
             daily: []
@@ -359,6 +360,8 @@ exports.handler = (event, context) ->
         return mdsResults
 
     normalizeOpenweatherData = (mowData, source) ->
+        if mowData.error then return null
+
         mowResults =
             source: 'mockopenweather'
             data: mowData
@@ -380,8 +383,7 @@ exports.handler = (event, context) ->
         return mowResults
 
     normalizeVisualcrossingData = (mvcData, source) ->
-        if mvcData.error
-            return null
+        if mvcData.error then return null
 
         mvcResults =
             source: 'mockvisualcrossing'
