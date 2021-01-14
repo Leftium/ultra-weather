@@ -5,18 +5,12 @@ exports.handler = (event, context) ->
     # console.log """\ncontext: #{JSON.stringify context, null, 2}, event: #{JSON.stringify event, null, 2}\n"""
 
     MOCK_IP_ADDRESS          = process.env.MOCK_IP_ADDRESS
-    MOCK_DATA_DARKSKY        = process.env.MOCK_DATA_DARKSKY
-    MOCK_DATA_OPENWEATHER    = process.env.MOCK_DATA_OPENWEATHER
-    MOCK_DATA_VISUALCROSSING = process.env.MOCK_DATA_VISUALCROSSING
     DARKSKY_API_KEY          = process.env.DARK_SKY_API_KEY
     OPENWEATHER_API_KEY      = process.env.OPENWEATHER_API_KEY
     VISUALCROSSING_API_KEY   = process.env.VISUALCROSSING_API_KEY
 
     console.log o =
         MOCK_IP_ADDRESS: MOCK_IP_ADDRESS
-        MOCK_DATA_DARKSKY: MOCK_DATA_DARKSKY
-        MOCK_DATA_OPENWEATHER: MOCK_DATA_OPENWEATHER
-        MOCK_DATA_VISUALCROSSING: MOCK_DATA_VISUALCROSSING
 
     host = event.headers['host']
 
@@ -132,7 +126,7 @@ exports.handler = (event, context) ->
     # Settings for each API above
     SETTINGS_MOCKDARKSKY =
         hasKey: true
-        urls: "http://#{host}/json/#{MOCK_DATA_DARKSKY}.json"
+        urls: "http://#{host}/json/mock-data-darksky.json"
     SETTINGS_DARKSKY =
         hasKey: !!DARKSKY_API_KEY
         urls: [
@@ -148,7 +142,7 @@ exports.handler = (event, context) ->
 
     SETTINGS_MOCKOPENWEATHER =
         hasKey: true
-        urls: "http://#{host}/json/#{MOCK_DATA_OPENWEATHER}.json"
+        urls: "http://#{host}/json/mock-data-openweather.json"
     SETTINGS_OPENWEATHER =
         hasKey: !!OPENWEATHER_API_KEY
         urls: [
@@ -166,7 +160,7 @@ exports.handler = (event, context) ->
 
     SETTINGS_MOCKVISUALCROSSING =
         hasKey: true
-        urls: "http://#{host}/json/#{MOCK_DATA_VISUALCROSSING}.json"
+        urls: "http://#{host}/json/mock-data-visualcrossing.json"
     SETTINGS_VISUALCROSSING =
         hasKey: !!VISUALCROSSING_API_KEY
         urls: [
