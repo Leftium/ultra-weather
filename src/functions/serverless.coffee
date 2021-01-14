@@ -54,6 +54,9 @@ exports.handler = (event, context) ->
     # Fallback on mock API.
     preferredApis = [...preferredApis, 'mockdarksky']
 
+    # Remove duplicates while maintaining order.
+    preferredApis = Array.from new Set(preferredApis)
+
     console.log preferredApis: preferredApis
 
     SECONDS_PER_DAY = 24*60*60
@@ -131,70 +134,6 @@ exports.handler = (event, context) ->
 
         return url
 
-
-
-
-    # Settings for each API above
-    SETTINGS_MOCKDARKSKY =
-        hasKey: true
-        data: mockDataDarksky
-    SETTINGS_DARKSKY =
-        hasKey: !!DARKSKY_API_KEY
-        urls: [
-            makeDarkSkyUrl latitude, longitude
-            makeDarkSkyUrl latitude, longitude, ts1
-            makeDarkSkyUrl latitude, longitude, ts2
-        ]
-        axiosConfig:
-            headers:
-                'Accept-Encoding': 'gzip'
-            params:
-                exclude: 'minutely,hourly,alerts,flags'
-
-    SETTINGS_MOCKOPENWEATHER =
-        hasKey: true
-        data: mockDataOpenweather
-
-    SETTINGS_OPENWEATHER =
-        hasKey: !!OPENWEATHER_API_KEY
-        urls: [
-            makeOpenWeatherUrl latitude, longitude
-            makeOpenWeatherUrl latitude, longitude, ts1
-            makeOpenWeatherUrl latitude, longitude, ts2
-        ]
-        axiosConfig:
-            headers:
-                'Accept-Encoding': 'gzip'
-            params:
-                exclude: 'minutely,hourly,alerts'
-                units: 'imperial'
-                appid: OPENWEATHER_API_KEY
-
-    SETTINGS_MOCKVISUALCROSSING =
-        hasKey: true
-        data: mockDataVisualcrossing
-
-    SETTINGS_VISUALCROSSING =
-        hasKey: !!VISUALCROSSING_API_KEY
-        urls: [
-            makeVisualCrossingUrl latitude, longitude, date1, date2
-        ]
-        axiosConfig:
-            headers:
-                'Accept-Encoding': 'gzip'
-            params:
-                include: 'obs,fcst,current'
-                unitGroup: 'us'
-                key: VISUALCROSSING_API_KEY
-
-    API_SETTINGS =
-        mockdarksky:        SETTINGS_MOCKDARKSKY
-        darksky:            SETTINGS_DARKSKY
-        mockopenweather:    SETTINGS_MOCKOPENWEATHER
-        openweather:        SETTINGS_OPENWEATHER
-        mockvisualcrossing: SETTINGS_MOCKVISUALCROSSING
-        visualcrossing:     SETTINGS_VISUALCROSSING
-
     console.log vars =
         latitude: latitude
         longitude: longitude
@@ -223,12 +162,6 @@ exports.handler = (event, context) ->
                         message: error?.message
                         url: error?.config?.url
         return data
-
-
-
-    mdsData = await getDataFromApi API_SETTINGS.mockdarksky
-    mowData = await getDataFromApi API_SETTINGS.mockopenweather
-    mvcData = await getDataFromApi API_SETTINGS.mockvisualcrossing
 
     extractFields = (data, isHistorical=false) ->
         if isHistorical
@@ -378,53 +311,9 @@ exports.handler = (event, context) ->
             apparentTemperatureMin: apparentTemperatureMin
             apparentTemperatureMax: apparentTemperatureMax
 
-    normalizeDarkskyData = (mdsData, source) ->
-        mdsResults =
-            source: source
-            daily: []
-
-        mdsResults.summary = mdsData?[0]?.daily.summary
-        mdsResults.timezone = mdsData?[0]?.timezone
-        mdsResults.currently = extractFields mdsData?[0]?.currently
-        mdsResults.daily.push extractFields(mdsData?[2]?.daily?.data[0], true)
-        mdsResults.daily.push extractFields(mdsData?[1]?.daily?.data[0], true)
-
-        mdsData?[0]?.daily?.data?.forEach (mdsData) ->
-            mdsResults.daily.push extractFields(mdsData)
-
-        return mdsResults
-
-    mdsNormalized = normalizeDarkskyData mdsData, 'mockdarksky'
-
-
-    normalizeOpenweatherData = (mowData, source) ->
-        mowResults =
-            source: 'mockopenweather'
-            data: mowData
-            daily: []
-
-        mowResults.summary = ''
-        mowResults.timezone = mowData?[0]?.timezone
-        mowResults.currently = extractFieldsOw mowData?[0]?.current
-
-        fields = extractFieldsOwHistorical mowData?[2]
-        mowResults.daily.push fields
-
-        fields = extractFieldsOwHistorical mowData?[1]
-        mowResults.daily.push fields
-
-        for day,i in mowData?[0].daily
-            mowResults.daily.push extractFieldsOw day
-
-        return mowResults
-
-    mowNormalized = normalizeOpenweatherData mowData, 'mockopenweather'
-
-
     extractFieldsVc = (data) ->
         if data?.source isnt 'fcst'
             precipProbability = data?.precip * 25.4
-            console.log "precip mm: #{precipProbability}"
         else
             precipProbability = data?.precipprob
 
@@ -451,6 +340,45 @@ exports.handler = (event, context) ->
             apparentTemperatureMin: apparentTemperatureMin
             apparentTemperatureMax: apparentTemperatureMax
 
+
+
+    normalizeDarkskyData = (mdsData, source) ->
+        mdsResults =
+            source: source
+            daily: []
+
+        mdsResults.summary = mdsData?[0]?.daily.summary
+        mdsResults.timezone = mdsData?[0]?.timezone
+        mdsResults.currently = extractFields mdsData?[0]?.currently
+        mdsResults.daily.push extractFields(mdsData?[2]?.daily?.data[0], true)
+        mdsResults.daily.push extractFields(mdsData?[1]?.daily?.data[0], true)
+
+        mdsData?[0]?.daily?.data?.forEach (mdsData) ->
+            mdsResults.daily.push extractFields(mdsData)
+
+        return mdsResults
+
+    normalizeOpenweatherData = (mowData, source) ->
+        mowResults =
+            source: 'mockopenweather'
+            data: mowData
+            daily: []
+
+        mowResults.summary = ''
+        mowResults.timezone = mowData?[0]?.timezone
+        mowResults.currently = extractFieldsOw mowData?[0]?.current
+
+        fields = extractFieldsOwHistorical mowData?[2]
+        mowResults.daily.push fields
+
+        fields = extractFieldsOwHistorical mowData?[1]
+        mowResults.daily.push fields
+
+        for day,i in mowData?[0].daily
+            mowResults.daily.push extractFieldsOw day
+
+        return mowResults
+
     normalizeVisualcrossingData = (mvcData, source) ->
         if mvcData.error
             return null
@@ -470,39 +398,88 @@ exports.handler = (event, context) ->
 
         return mvcResults
 
-    mvcNormalized = normalizeVisualcrossingData mvcData, 'mockvirtualcrossing'
-
-    apiData =
-        mockdarksky:        mdsData
-        mockopenweather:    mowData
-        mockvisualcrossing: mvcData
-
-    normalized =
-        mockdarksky:        mdsNormalized
-        mockopenweather:    mowNormalized
-        mockvisualcrossing: mvcNormalized
 
 
-    needData = true
+    # Settings for each API above
+    SETTINGS_MOCKDARKSKY =
+        hasKey: true
+        normalizer: normalizeDarkskyData
+        data: mockDataDarksky
+    SETTINGS_DARKSKY =
+        hasKey: !!DARKSKY_API_KEY
+        normalizer: normalizeDarkskyData
+        urls: [
+            makeDarkSkyUrl latitude, longitude
+            makeDarkSkyUrl latitude, longitude, ts1
+            makeDarkSkyUrl latitude, longitude, ts2
+        ]
+        axiosConfig:
+            headers:
+                'Accept-Encoding': 'gzip'
+            params:
+                exclude: 'minutely,hourly,alerts,flags'
 
-    if 'darksky' in preferredApis
-        data = await getDataFromApi API_SETTINGS.darksky
-        apiData.darksky = data
-        normalized.darksky = normalizeDarkskyData data, 'darksky'
+    SETTINGS_MOCKOPENWEATHER =
+        hasKey: true
+        normalizer: normalizeOpenweatherData
+        data: mockDataOpenweather
 
-        if data and not data?.error then needData = false
+    SETTINGS_OPENWEATHER =
+        hasKey: !!OPENWEATHER_API_KEY
+        normalizer: normalizeOpenweatherData
+        urls: [
+            makeOpenWeatherUrl latitude, longitude
+            makeOpenWeatherUrl latitude, longitude, ts1
+            makeOpenWeatherUrl latitude, longitude, ts2
+        ]
+        axiosConfig:
+            headers:
+                'Accept-Encoding': 'gzip'
+            params:
+                exclude: 'minutely,hourly,alerts'
+                units: 'imperial'
+                appid: OPENWEATHER_API_KEY
 
-    if debug or ('openweather' in preferredApis and needData)
-        data = await getDataFromApi API_SETTINGS.openweather
-        apiData.openweather = data
-        normalized.openweather = normalizeOpenweatherData data, 'openweather'
+    SETTINGS_MOCKVISUALCROSSING =
+        hasKey: true
+        normalizer: normalizeVisualcrossingData
+        data: mockDataVisualcrossing
 
-        if data and not data?.error then needData = false
+    SETTINGS_VISUALCROSSING =
+        hasKey: !!VISUALCROSSING_API_KEY
+        normalizer: normalizeVisualcrossingData
+        urls: [
+            makeVisualCrossingUrl latitude, longitude, date1, date2
+        ]
+        axiosConfig:
+            headers:
+                'Accept-Encoding': 'gzip'
+            params:
+                include: 'obs,fcst,current'
+                unitGroup: 'us'
+                key: VISUALCROSSING_API_KEY
 
-    if debug or ('visualcrossing' in preferredApis and needData)
-        data = await getDataFromApi API_SETTINGS.visualcrossing
-        apiData.visualcrossing = data
-        normalized.visualcrossing = normalizeVisualcrossingData data, 'visualcrossing'
+
+
+
+
+
+    API_SETTINGS =
+        mockdarksky:        SETTINGS_MOCKDARKSKY
+        darksky:            SETTINGS_DARKSKY
+        mockopenweather:    SETTINGS_MOCKOPENWEATHER
+        openweather:        SETTINGS_OPENWEATHER
+        mockvisualcrossing: SETTINGS_MOCKVISUALCROSSING
+        visualcrossing:     SETTINGS_VISUALCROSSING
+
+    apiData = {}
+    normalized ={}
+    for api in preferredApis
+        data = await getDataFromApi API_SETTINGS[api]
+        apiData[api] = data
+        normalized[api] = API_SETTINGS[api].normalizer data, api
+
+        if not debug and data and not data?.error then break
 
     payload =
         common:
