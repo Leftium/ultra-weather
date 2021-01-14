@@ -5,6 +5,7 @@ html, body {
     font-family: helvetica, arial, sans-serif;
     background-color: #fdf6e3 ;
     user-select: none;
+    -webkit-tap-highlight-color: rgba(0,0,0,0);
 }
 
 a {
