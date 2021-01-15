@@ -26,6 +26,7 @@ exports.handler = (event, context) ->
         if not !!ipAddress then ipAddress = '1.1.1.1'
         mockIp = true
 
+    hideCountry = bool event.queryStringParameters.hc
 
     # If true all APIs in preferred API list retrieved and sent.
     # If false, API calls/payload size are minimized.
@@ -95,7 +96,7 @@ exports.handler = (event, context) ->
         location = "#{place.name}"
         if place.state
             location += ", #{place.state}"
-        if place.country
+        if not hideCountry and place.country
             location += " [#{place.country}]"
     else
         # Geocode lat/long from IP address.
