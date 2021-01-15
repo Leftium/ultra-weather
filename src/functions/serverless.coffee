@@ -69,7 +69,7 @@ exports.handler = (event, context) ->
 
     # If a location passed, geocode it to a lat/lon.
     console.log ['location:', location]
-    if !!location  # Ensure location non-empty string.
+    if !!OPENWEATHER_API_KEY and !!location  # Ensure API key and location is non-empty string.
         url = "http://api.openweathermap.org/geo/1.0/direct?q=#{location}&limit=5&appid=#{OPENWEATHER_API_KEY}"
 
         try

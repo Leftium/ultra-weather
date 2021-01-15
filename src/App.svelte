@@ -107,8 +107,6 @@
         chart2.update()
 
     getData = () ->
-        console.log location
-
         loc = location.pathname[1..]  # Trim first slash
 
         queryString = location.search
