@@ -364,7 +364,6 @@ exports.handler = (event, context) ->
 
         mowResults =
             source: 'mockopenweather'
-            data: mowData
             daily: []
 
         mowResults.summary = ''
