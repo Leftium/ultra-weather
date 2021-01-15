@@ -1,14 +1,41 @@
 # UltraWeather
 
+**Live demo:** [User-friendly, actionable weather forecasts](https://uw.leftium.com)
+
 ![UltraWeather](https://cdn.glitch.com/e2e10ff0-74aa-48e9-88ca-0643a72848b9%2Fultraweather.jpg)
 
-User-friendly, actionable weather forecasts: at a glance, you can quickly decide:
-- "Is it warm enough for short sleeves?"
-- "Do I need sunscreen? An umbrella?"
+At a glance, you can quickly decide:
+- Is it warm enough for short sleeves?
+- Do I need sunscreen? An umbrella?
 
 UltraWeather also gives you a better [intuitive sense of the temperature](http://blog.leftium.com/2013/12/how-to-display-temperature-properly.html).
 
-Live demo: [uw.leftium.com](https://uw.leftium.com)
+## Advanced Usage
+
+UltraWeather options can be set via the URL:
+
+### Specify a location
+- https://uw.leftium.com Default is location based on IP address.
+- https://uw.leftium.com/london (By city name)
+- https://uw.leftium.com/london,,GB (Force country to Great Britain)
+- https://uw.leftium.com/55105 (Sometimes ZIP codes work)
+
+Locations are retrieved from the [OpenWeather geocoding API](https://openweathermap.org/api/geocoding-api), and sorted to prefer some countries like the US.
+
+### Choose which weather API to use
+- https://uw.leftium.com/?api=openweather
+    - Possible API's: `darksky`,`openweather`,`visualcrossing`
+    - The API's are also mocked: `mockdarksky`
+    - There are also short version: `ds`, `mds`
+    
+### Get debug info
+- https://uw.leftium.com/?debug&api=mds,mow,mvc Returns data from all three mock API's, which can be inspected from the browser dev console. Normally only data from the first successful call is returned.
+
+
+   
+    
+
+
 
 ## How to build:
 
@@ -34,7 +61,7 @@ The above will fall back to mock data, since no API keys are configured. To show
 - [Visual Crossing](https://www.visualcrossing.com/weather-api)
 - [Dark Sky](https://darksky.net/dev) (Unfortunately Dark Sky API does not accept new signups.)
 
-- [ip-api](https://ip-api.com/) No API key needed, but listed here for reference. Used to geocode IP address to lat/long.
+- [ip-api](https://ip-api.com/) Used to geocode IP address to lat/long. No API key needed, but listed here for reference.
 
 
 ### You may also need to install/configure Netlify dev
