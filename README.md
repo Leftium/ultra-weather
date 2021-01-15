@@ -1,14 +1,15 @@
 # UltraWeather
 
+**Live demo:** [User-friendly, actionable weather forecasts](https://uw.leftium.com)
+
 ![UltraWeather](https://cdn.glitch.com/e2e10ff0-74aa-48e9-88ca-0643a72848b9%2Fultraweather.jpg)
 
-User-friendly, actionable weather forecasts: at a glance, you can quickly decide:
+At a glance, you can quickly decide:
 - "Is it warm enough for short sleeves?"
 - "Do I need sunscreen? An umbrella?"
 
 UltraWeather also gives you a better [intuitive sense of the temperature](http://blog.leftium.com/2013/12/how-to-display-temperature-properly.html).
 
-Live demo: [uw.leftium.com](https://uw.leftium.com)
 
 ## How to build:
 
