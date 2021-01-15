@@ -5,11 +5,37 @@
 ![UltraWeather](https://cdn.glitch.com/e2e10ff0-74aa-48e9-88ca-0643a72848b9%2Fultraweather.jpg)
 
 At a glance, you can quickly decide:
-- "Is it warm enough for short sleeves?"
-- "Do I need sunscreen? An umbrella?"
+- Is it warm enough for short sleeves?
+- Do I need sunscreen? An umbrella?
 
 UltraWeather also gives you a better [intuitive sense of the temperature](http://blog.leftium.com/2013/12/how-to-display-temperature-properly.html).
 
+## Advanced Usage
+
+UltraWeather automatically grabs your location based on your IP address, but you can specify some other options:
+
+### Specify a location
+- https://uw.leftium.com Default is location based on IP address.
+- https://uw.leftium.com/london (By city name)
+- https://uw.leftium.com/london,,GB (Force country to Great Britain)
+- https://uw.leftium.com/55105 (Sometimes ZIP codes work)
+
+Locations are retrieved from the [OpenWeather geocoding API](https://openweathermap.org/api/geocoding-api), and sorted to prefer some countries like the US.
+
+### Choose which weather API to use
+- https://uw.leftium.com/?api=openweather
+    - Possible API's: `darksky`,`openweather`,`visualcrossing`
+    - The API's are also mocked: `mockdarksky`
+    - There are also short version: `ds`, `mds`
+    
+### Get debug info
+- https://uw.leftium.com/?debug&api=mds,mow,mvc Returns data from all three mock API's, which can be inspected from the browser dev console. Normally only data from the first successful call is returned.
+
+
+   
+    
+
+### Select which weather API to use
 
 ## How to build:
 
