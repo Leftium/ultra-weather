@@ -31,7 +31,7 @@ Locations are retrieved from the [OpenWeather geocoding API](https://openweather
 ### Get debug info
 - https://uw.leftium.com/?debug&api=mds,mow,mvc Returns data from three API's, inspectable in the browser dev console. Normally only data from the first successful call is returned.
 
-
+![Debug Info](https://cdn.glitch.com/e2e10ff0-74aa-48e9-88ca-0643a72848b9%2F6611b888-f83c-4066-b1a8-c7e27ab367a3.image.png?v=1610690770121)
    
     
 
