@@ -451,7 +451,7 @@ main(on:click='{ensureToolTipClosed}' on:touchstart='{ensureToolTipClosed}')
                     #links
                         a(href="https://darksky.net/forecast/{data.latitude},{data.longitude}/") DarkSky Forecast
                         span &nbsp;|&nbsp;
-                        a(href="https://github.com/Leftium/ultra-weather") About UltraWeather
+                        a(href="https://github.com/Leftium/ultra-weather#readme") About UltraWeather
                 div.center
                     span(class:hide='{!(warnError||warnMockData)}') &#x26A0;&#xFE0F;&nbsp;
                     span(class:hide='{!warnMockData}') Showing mocked data.&nbsp;
