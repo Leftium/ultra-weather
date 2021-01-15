@@ -107,6 +107,9 @@
         chart2.update()
 
     getData = () ->
+        console.group 'UltraWeather Debug Info'
+        console.time 'Completed in'
+
         loc = location.pathname[1..]  # Trim first slash
 
         queryString = location.search
@@ -118,13 +121,15 @@
         response = await axios.get url
         data = await response.data
 
-        window.data = data
-        console.log data
-
         for k,v of data.apiData
             if v.error
                 warnError = true
                 console.error "ERROR getting data for #{k}:", v
+
+        console.group 'Data from API (bound to window.uwApiData):'
+        window.uwApiData = data
+        console.log data
+        console.groupEnd 'Data from API (bound to window.uwApiData):'
 
         # Construct object with weather data to render:
         use = data.use
@@ -145,8 +150,15 @@
                 else
                     payload.labels.push jsDate.format 'dd-DD'
 
-        window.payload = payload
+        console.group 'Data to render (bound to window.uwRender):'
+        window.uwRender = payload
+        console.table payload.daily
         console.log payload
+        console.groupEnd 'Data to render (bound to window.uwRender):'
+
+
+        console.timeEnd 'Completed in'
+        console.groupEnd 'UltraWeather Debug Info'
         return payload
 
 
