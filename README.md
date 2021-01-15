@@ -12,7 +12,7 @@ UltraWeather also gives you a better [intuitive sense of the temperature](http:/
 
 ## Advanced Usage
 
-UltraWeather automatically grabs your location based on your IP address, but you can specify some other options:
+UltraWeather options can be set via the URL:
 
 ### Specify a location
 - https://uw.leftium.com Default is location based on IP address.
@@ -35,7 +35,7 @@ Locations are retrieved from the [OpenWeather geocoding API](https://openweather
    
     
 
-### Select which weather API to use
+
 
 ## How to build:
 
