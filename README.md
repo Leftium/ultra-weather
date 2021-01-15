@@ -34,7 +34,7 @@ The above will fall back to mock data, since no API keys are configured. To show
 - [Visual Crossing](https://www.visualcrossing.com/weather-api)
 - [Dark Sky](https://darksky.net/dev) (Unfortunately Dark Sky API does not accept new signups.)
 
-- [ip-api](https://ip-api.com/) No API key needed, but listed here for reference. Used to geocode IP address to lat/long.
+- [ip-api](https://ip-api.com/) Used to geocode IP address to lat/long. No API key needed, but listed here for reference.
 
 
 ### You may also need to install/configure Netlify dev
