@@ -1,6 +1,6 @@
 # UltraWeather
 
-![UltraWeather](https://trello-attachments.s3.amazonaws.com/57f3b8fdfee753ac33f2bfad/5ffe720969170381d98f11bb/281ecf33932ed6c9efa7b87eb86ba74b/ultraweather.jpg)
+![UltraWeather](https://cdn.glitch.com/e2e10ff0-74aa-48e9-88ca-0643a72848b9%2Fultraweather.jpg)
 
 User-friendly, actionable weather forecasts: at a glance, you can quickly decide:
 - "Is it warm enough for short sleeves?"
@@ -14,13 +14,14 @@ Live demo: [uw.leftium.com](https://uw.leftium.com)
 
     git clone https://github.com/Leftium/ultra-weather.git
     cd ultra-weather
-    yarn                                 # Install dependencies.
-    netlify init                         # Connect to Netlify.
+    
+    yarn                # Install dependencies.
+    netlify init        # Connect to Netlify.
         # Answer like this at prompts:
         # Your build command: "yarn dev"
         # Directory to deploy to: "public"
         # Netlify functions folder: "functions"
-    netlify dev                          # Start the local server!
+    netlify dev         # Start the local server!
 
 The above will fall back to mock data, since no API keys are configured. To show live weather data, set up your API keys:
     
@@ -29,9 +30,12 @@ The above will fall back to mock data, since no API keys are configured. To show
     netlify dev
     
 ### Get your own API keys:
-
+- [OpenWeather](https://openweathermap.org/api) This API is also used to geocode place names to lat/long.
+- [Visual Crossing](https://www.visualcrossing.com/weather-api)
 - [Dark Sky](https://darksky.net/dev) (Unfortunately Dark Sky API does not accept new signups.)
-- [OpenWeatherMap](https://openweathermap.org/api)
+
+- [ip-api](https://ip-api.com/) No API key needed, but listed here for reference. Used to geocode IP address to lat/long.
+
 
 ### You may also need to install/configure Netlify dev
 
