@@ -71,7 +71,7 @@ exports.handler = (event, context) ->
     # If a location passed, geocode it to a lat/lon.
     console.log ['location:', location]
     if !!OPENWEATHER_API_KEY and !!location  # Ensure API key and location is non-empty string.
-        url = "http://api.openweathermap.org/geo/1.0/direct?q=#{location}&limit=5&appid=#{OPENWEATHER_API_KEY}"
+        url = "http://api.openweathermap.org/geo/1.0/direct?q=#{location}&limit=50&appid=#{OPENWEATHER_API_KEY}"
 
         try
             response = await axios.get url
@@ -86,6 +86,8 @@ exports.handler = (event, context) ->
                 return aTier - bTier
         catch error
             console.log error
+
+    console.log places
 
     if place = places?[0]
         # Geocode API was successful. Use the first place from the results.
