@@ -449,9 +449,9 @@ main(on:click='{ensureToolTipClosed}' on:touchstart='{ensureToolTipClosed}')
                 div.chart: canvas(bind:this='{canvas1}')
                 #links-container.flex-top.flex-container
                     #links
-                        a(href="https://darksky.net/forecast/{data.latitude},{data.longitude}/") View DarkSky Forecast
+                        a(href="https://darksky.net/forecast/{data.latitude},{data.longitude}/") DarkSky Forecast
                         span &nbsp;|&nbsp;
-                        a(href="https://github.com/Leftium/ultra-weather") About
+                        a(href="https://github.com/Leftium/ultra-weather") About UltraWeather
                 div.center
                     span(class:hide='{!(warnError||warnMockData)}') &#x26A0;&#xFE0F;&nbsp;
                     span(class:hide='{!warnMockData}') Showing mocked data.&nbsp;
