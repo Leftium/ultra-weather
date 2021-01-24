@@ -58,7 +58,10 @@
     temperatureApparent = 0
     displayTemperature = ''
     displayTemperatureApparent = ''
-    ```$: {```  ## Start Svelte reactive block.
+
+
+
+    `$: {`  ## Start Svelte reactive block.
 
     if mode is 'c'
         convertedTemperature = celsius temperature
@@ -71,7 +74,10 @@
 
     displayTemperature         = "#{Math.round(convertedTemperature) }#{unit}"
     displayTemperatureApparent = "#{Math.round(convertedTempApparent)}#{unit}"
-    ```}```  ## End reactive block.
+
+    `}`  ## End reactive block.
+
+
 
     now = dayjs()
 
