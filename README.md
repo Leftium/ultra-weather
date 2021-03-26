@@ -5,6 +5,7 @@
 ![UltraWeather](https://cdn.glitch.com/e2e10ff0-74aa-48e9-88ca-0643a72848b9%2Fultraweather.jpg)
 
 At a glance, quickly determine:
+- Is it warmer than yesterday? Colder than the day before?
 - Is it warm enough for short sleeves?
 - Do I need sunscreen? An umbrella?
 
