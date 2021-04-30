@@ -2,9 +2,10 @@
 
 **Live demo:** [User-friendly weather forecast](https://uw.leftium.com)
 
-![UltraWeather](https://cdn.glitch.com/e2e10ff0-74aa-48e9-88ca-0643a72848b9%2Fultraweather.jpg)
+[![UltraWeather](https://cdn.glitch.com/e2e10ff0-74aa-48e9-88ca-0643a72848b9%2Fultraweather.jpg)](https://uw.leftium.com)
 
 At a glance, quickly determine:
+- Is it warmer than yesterday? Colder than the day before?
 - Is it warm enough for short sleeves?
 - Do I need sunscreen? An umbrella?
 
