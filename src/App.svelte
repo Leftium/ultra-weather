@@ -1,4 +1,4 @@
-<script type='text/coffeescript'>
+<script lang='coffeescript'>
     import axios from 'axios'
 
     import dayjs from 'dayjs'
