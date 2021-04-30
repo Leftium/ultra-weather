@@ -7,7 +7,7 @@ import mockDataOpenweather    from './json/mock-data-openweather.json'
 import mockDataVisualcrossing from './json/mock-data-visualcrossing.json'
 
 exports.handler = (event, context) ->
-    # console.log """\ncontext: #{JSON.stringify context, null, 2}, event: #{JSON.stringify event, null, 2}\n"""
+    console.log """\ncontext: #{JSON.stringify context, null, 2}, event: #{JSON.stringify event, null, 2}\n"""
 
     MOCK_IP_ADDRESS        = process.env.MOCK_IP_ADDRESS
     DARKSKY_API_KEY        = process.env.DARK_SKY_API_KEY
@@ -521,4 +521,3 @@ exports.handler = (event, context) ->
     return await value =  # `await` needed to force async function.
         statusCode: 200,
         body: JSON.stringify payload, null, 2
-
