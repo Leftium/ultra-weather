@@ -1,10 +1,26 @@
 import axios from 'axios'
 import dayjs from 'dayjs'
 import {bool} from 'cast-string'
+import ipRangeCheck from 'ip-range-check'
 
 import mockDataDarksky        from './json/mock-data-darksky.json'
 import mockDataOpenweather    from './json/mock-data-openweather.json'
 import mockDataVisualcrossing from './json/mock-data-visualcrossing.json'
+
+IP_BLACKLIST = [
+    # '1.1.1.1'
+    '104.208.0.0/13'
+    '104.40.0.0/13'
+    '13.64.0.0/11'
+    '138.91.0.0/16'
+    '20.0.0.0/11'
+    '20.160.0.0/12'
+    '20.192.0.0/10'
+    '20.64.0.0/10'
+    '23.100.0.0/15'
+    '40.68.0.0/14'
+    '40.76.0.0/14'
+]
 
 exports.handler = (event, context) ->
     # console.log """\ncontext: #{JSON.stringify context, null, 2}, event: #{JSON.stringify event, null, 2}\n"""
@@ -28,6 +44,8 @@ exports.handler = (event, context) ->
         ipAddress = MOCK_IP_ADDRESS
         if not !!ipAddress then ipAddress = '1.1.1.1'
         mockIp = true
+
+    ipBlackListed = ipRangeCheck ipAddress, IP_BLACKLIST
 
     hideCountry = bool event.queryStringParameters.hc
 
@@ -146,10 +164,15 @@ exports.handler = (event, context) ->
         location:  location
     ###
 
-    console.log "REQUEST: #{ipAddress}; #{event.queryStringParameters.l or 'NONE'}; #{latitude},#{longitude}; (#{location}); #{referer}; #{userAgent}"
+    console.log "REQUEST: #{ipAddress}; #{ipBlackListed}; #{event.queryStringParameters.l or 'NONE'}; #{latitude},#{longitude}; (#{location}); #{referer}; #{userAgent}"
 
     getDataFromApi = (api) ->
         if api.data then return api.data
+
+        if ipBlackListed then return error =
+            error:
+                message: 'This IP address has been restricted.'
+
 
         if not api.hasKey then return error =
             error:

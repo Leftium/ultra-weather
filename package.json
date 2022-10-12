@@ -25,6 +25,7 @@
     "chart.js": "^2.9.4",
     "chartjs-plugin-datalabels": "^0.7.0",
     "dayjs": "^1.10.3",
+    "ip-range-check": "^0.2.0",
     "rollup-plugin-coffee-script": "^2.0.0",
     "sirv-cli": "^1.0.0",
     "svelte-preprocess": "^4.6.3"
