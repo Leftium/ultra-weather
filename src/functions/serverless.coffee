@@ -18,6 +18,9 @@ exports.handler = (event, context) ->
 
     host = event.headers['host']
 
+    referer = event.headers['referer']
+    userAgent = event.headers['user-agent']
+
     # Get an IP address that the geocoding API can use.
     # netlify dev localhost IP address is weird.
     ipAddress = event.headers['x-nf-client-connection-ip'] or event.headers['client-ip']
@@ -143,7 +146,7 @@ exports.handler = (event, context) ->
         location:  location
     ###
 
-    console.log "REQUEST: #{ipAddress}; #{event.queryStringParameters.l}; #{latitude},#{longitude}; (#{location})"
+    console.log "REQUEST: #{ipAddress}; #{event.queryStringParameters.l or 'NONE'}; #{latitude},#{longitude}; (#{location}); #{referer}; #{userAgent}"
 
     getDataFromApi = (api) ->
         if api.data then return api.data
