@@ -26,7 +26,6 @@ REFERER_BLACKLIST = [
     'https://uw.leftium.com/%C3%9Csk%C3%BCdar%2C+TR?api=darksky'
     'https://uw.leftium.com/Beckenham%2C+GB?api=darksky'
     'https://uw.leftium.com/Prague%2C+CZ?api=darksky'
-    'https://uw.leftium.com/default?api=darksky'
 ]
 
 exports.handler = (event, context) ->
