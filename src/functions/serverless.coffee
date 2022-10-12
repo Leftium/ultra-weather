@@ -14,7 +14,7 @@ exports.handler = (event, context) ->
     OPENWEATHER_API_KEY    = process.env.OPENWEATHER_API_KEY
     VISUALCROSSING_API_KEY = process.env.VISUALCROSSING_API_KEY
 
-    console.log MOCK_IP_ADDRESS: MOCK_IP_ADDRESS
+    # console.log MOCK_IP_ADDRESS: MOCK_IP_ADDRESS
 
     host = event.headers['host']
 
@@ -57,7 +57,7 @@ exports.handler = (event, context) ->
     # Remove duplicates while maintaining order.
     preferredApis = Array.from new Set(preferredApis)
 
-    console.log preferredApis: preferredApis
+    # console.log preferredApis: preferredApis
 
     SECONDS_PER_DAY = 24*60*60
 
@@ -69,7 +69,7 @@ exports.handler = (event, context) ->
     date2 = dayjs.unix(unixEpoch + 7*SECONDS_PER_DAY).format 'YYYY-M-D' # One week into future.
 
     # If a location passed, geocode it to a lat/lon.
-    console.log ['location:', location]
+    # console.log ['location:', location]
     if !!OPENWEATHER_API_KEY and !!location  # Ensure API key and location is non-empty string.
         url = "http://api.openweathermap.org/geo/1.0/direct?q=#{location}&limit=50&appid=#{OPENWEATHER_API_KEY}"
 
@@ -87,7 +87,7 @@ exports.handler = (event, context) ->
         catch error
             console.log error
 
-    console.log places
+    # console.log places
 
     if place = places?[0]
         # Geocode API was successful. Use the first place from the results.
@@ -136,10 +136,12 @@ exports.handler = (event, context) ->
 
         return url
 
+    ###
     console.log vars =
         latitude: latitude
         longitude: longitude
         location:  location
+    ###
 
     getDataFromApi = (api) ->
         if api.data then return api.data
@@ -153,7 +155,7 @@ exports.handler = (event, context) ->
         promises = []
         try
             for url in api.urls
-                console.log url
+                # console.log url
                 promises.push axios.get url, api.axiosConfig
             responses = await Promise.all promises
             data = (r.data for r in responses)
@@ -501,7 +503,7 @@ exports.handler = (event, context) ->
         if result and not result?.error
             sortedResults.push api
 
-    console.log sortedResults
+    # console.log sortedResults
     use = payload.use = sortedResults?[0]
 
     # Add minimal data needed to render weather.
