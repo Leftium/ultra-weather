@@ -143,7 +143,7 @@ exports.handler = (event, context) ->
         location:  location
     ###
 
-    console.log "REQUEST: #{ipAddress}; #{latitude},#{longitude}; (#{location})"
+    console.log "REQUEST: #{ipAddress}; #{event.queryStringParameters.l}; #{latitude},#{longitude}; (#{location})"
 
     getDataFromApi = (api) ->
         if api.data then return api.data
