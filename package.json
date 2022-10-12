@@ -10,6 +10,7 @@
     "@rollup/plugin-commonjs": "^14.0.0",
     "@rollup/plugin-node-resolve": "^8.0.0",
     "coffeescript": "^2.5.1",
+    "netlify-cli": "^12.0.7",
     "pug": "^3.0.0",
     "rollup": "^2.3.4",
     "rollup-plugin-livereload": "^2.0.0",
