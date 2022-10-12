@@ -20,7 +20,7 @@ exports.handler = (event, context) ->
 
     # Get an IP address that the geocoding API can use.
     # netlify dev localhost IP address is weird.
-    ipAddress = event.multiValueHeaders['X-Nf-Client-Connection-Ip'][0]
+    ipAddress = event['x-nf-client-connection-ip'] or event['client-ip']
     if (ipAddress is '::1') or !!MOCK_IP_ADDRESS
         ipAddress = MOCK_IP_ADDRESS
         if not !!ipAddress then ipAddress = '1.1.1.1'
