@@ -22,6 +22,13 @@ IP_BLACKLIST = [
     '40.76.0.0/14'
 ]
 
+REFERER_BLACKLIST = [
+    'https://uw.leftium.com/%C3%9Csk%C3%BCdar%2C+TR?api=darksky'
+    'https://uw.leftium.com/Beckenham%2C+GB?api=darksky'
+    'https://uw.leftium.com/Prague%2C+CZ?api=darksky'
+    'https://uw.leftium.com/default?api=darksky'
+]
+
 exports.handler = (event, context) ->
     # console.log """\ncontext: #{JSON.stringify context, null, 2}, event: #{JSON.stringify event, null, 2}\n"""
 
@@ -36,6 +43,9 @@ exports.handler = (event, context) ->
 
     referer = event.headers['referer']
     userAgent = event.headers['user-agent']
+
+    referer = 'https://uw.leftium.com/default?api=darksky'
+    refererBlacklisted = REFERER_BLACKLIST.includes referer
 
     # Get an IP address that the geocoding API can use.
     # netlify dev localhost IP address is weird.
@@ -164,12 +174,12 @@ exports.handler = (event, context) ->
         location:  location
     ###
 
-    console.log "REQUEST: #{ipAddress}; #{ipBlackListed}; #{event.queryStringParameters.l or 'NONE'}; #{latitude},#{longitude}; (#{location}); #{referer}; #{userAgent}"
+    console.log "REQUEST: #{ipAddress}; #{ipBlackListed}; #{refererBlacklisted}; #{event.queryStringParameters.l or 'NONE'}; #{latitude},#{longitude}; (#{location}); #{referer}; #{userAgent}"
 
     getDataFromApi = (api) ->
         if api.data then return api.data
 
-        if ipBlackListed then return error =
+        if ipBlackListed or refererBlacklisted then return error =
             error:
                 message: 'This IP address has been restricted.'
 
