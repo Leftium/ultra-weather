@@ -214,6 +214,7 @@
         loader.remove()
 
         precipProbability = []
+        precipIntensityMax = []
         temperature = []
         temperatureMin = []
         temperatureMax = []
@@ -224,6 +225,7 @@
         for day in data.daily
             temperature.push day.temperature
             precipProbability.push day.precipProbability * 100
+            precipIntensityMax.push day.precipIntensityMax
 
             temperatureMin.push day.temperatureMin
             temperatureMax.push day.temperatureMax
@@ -234,6 +236,7 @@
         dataDaily =
             labels: data.labels
             precipProbability: precipProbability
+            precipIntensityMax: precipIntensityMax
             temperatureMin:    temperatureMin
             temperatureMax:    temperatureMax
             apparentMin:       apparentMin
@@ -318,16 +321,16 @@
                     display: false
             dsPrec =
                 type: 'bar'
-                label: 'Prec. %'
+                label: 'Prec. Rate'
                 backgroundColor: makeColorScript COLORS.water60, COLORS.water
                 borderColor: makeColorScript COLORS.water60, COLORS.water
-                data: dataDaily.precipProbability
-                yAxisID: 'percent-axis'
+                data: dataDaily.precipIntensityMax
+                yAxisID: 'precipitation-axis'
                 datalabels:
                     display: false
                     anchor: 'start'
                     formatter: (n) ->
-                        Math.round(n) + '%'
+                        n + ' mm/hr'
         ]
 
         toolTipsLabelCallback = (tooltipItem, data) ->
@@ -338,13 +341,9 @@
             if yAxisID is 'temperature-axis' and mode is 'c'
                 value = celsius(value)
 
-            if yAxisID is 'percent-axis'
-                return if tooltipItem.index < 2
-                    value = "#{value.toFixed 1}".padStart 6, ' '
-                    "#{value}: mm of precipitation"
-                else
-                    value = "#{Math.round value}".padStart 6, ' '
-                    "#{value}% Chance of precipitation"
+            if yAxisID is 'precipitation-axis'
+                value = "#{value.toFixed 1}".padStart 6, ' '
+                return "#{value}: mm/hr"
             else
                 value = "#{value.toFixed(1)}".padStart 6, ' '
                 return "#{value}: #{label}"
@@ -410,13 +409,13 @@
                                 type: 'linear'
                                 position: 'left'
                             axis =
-                                id: 'percent-axis'
+                                id: 'precipitation-axis'
                                 display: false
                                 type: 'linear'
                                 position: 'right'
                                 ticks:
                                     min: 0
-                                    max: 100
+                                    max: 8
                                 gridLines:
                                     drawOnChartArea: false
                         ]

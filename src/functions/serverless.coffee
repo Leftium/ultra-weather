@@ -205,26 +205,16 @@ exports.handler = (event, context) ->
         return data
 
     extractFields = (data, isHistorical=false) ->
-        if isHistorical
-            intensity = data?.precipIntensity
-            # 25.4 mm/inch, 24 hours
-            mmIntensity = intensity *  25.4 * 24
-            mmAccumulation = (data?.precipAccumulation or 0) * 25.4
+        precipProbability = data?.precipProbability
+        precipIntensityMax = data?.precipIntensityMax * 25.4 # Convert to mm.
 
-            #console.log o =
-            #    mmIntensity:mmIntensity
-            #    mmAccumulation:mmAccumulation
-
-            precipProbability = (mmIntensity + mmAccumulation)/100
-
-        else
-            precipProbability = data?.precipProbability
         object =
             time:    data?.time
             summary: data?.summary
             icon:    data?.icon
 
             precipProbability: precipProbability
+            precipIntensityMax: precipIntensityMax
 
             temperature:         data?.temperature
             apparentTemperature: data?.apparentTemperature
