@@ -1,4 +1,4 @@
-<script lang='coffeescript'>
+<script lang="coffeescript">
     import axios from 'axios'
 
     import dayjs from 'dayjs'
@@ -427,7 +427,7 @@
             chart2.destroy()
 </script>
 
-<template lang=pug>
+<template lang="pug">
 main(on:click='{ensureToolTipClosed}' on:touchstart='{ensureToolTipClosed}')
     +await('data then data')
         .view.portrait
@@ -454,7 +454,7 @@ main(on:click='{ensureToolTipClosed}' on:touchstart='{ensureToolTipClosed}')
                 div.chart: canvas(bind:this='{canvas1}')
                 #links-container.flex-top.flex-container
                     #links
-                        a(href="https://darksky.net/forecast/{data.latitude},{data.longitude}/") DarkSky Forecast
+                        a(href="https://openweathermap.org/") OpenWeather Forecast
                         span &nbsp;|&nbsp;
                         a(href="https://github.com/Leftium/ultra-weather#readme") About UltraWeather
                 div.center
@@ -480,133 +480,142 @@ main(on:click='{ensureToolTipClosed}' on:touchstart='{ensureToolTipClosed}')
 </template>
 
 <style>
-    main {
-        height: 100%;
-    }
+  main {
+    height: 100%;
+  }
 
-    .hide {
-        display:none;
-    }
+  .hide {
+    display: none;
+  }
 
-    *:not(input):not(textarea) {
-        user-select: none;
-    }
+  *:not(input):not(textarea) {
+    user-select: none;
+  }
 
-    @media (max-aspect-ratio: 12/10 ) {
-        .portrait { display: block; }
-        .landscape { display: none; }
+  @media (max-aspect-ratio: 12/10) {
+    .portrait {
+      display: block;
     }
-    @media (min-aspect-ratio: 12/10) {
-        .portrait { display: none; }
-        .landscape { display: block; }
+    .landscape {
+      display: none;
     }
+  }
+  @media (min-aspect-ratio: 12/10) {
+    .portrait {
+      display: none;
+    }
+    .landscape {
+      display: block;
+    }
+  }
 
-    h1 {
-        margin: 0;
-    }
+  h1 {
+    margin: 0;
+  }
 
-    .flex-container {
-        padding: 0;
-        margin: 0 8px;
-        list-style: none;
+  .flex-container {
+    padding: 0;
+    margin: 0 8px;
+    list-style: none;
 
-        -ms-box-orient: horizontal;
-        display: flex;
-    }
+    -ms-box-orient: horizontal;
+    display: flex;
+  }
 
-    .flex-vertical {
-        display: flex;
-        flex-direction: column;
-    }
+  .flex-vertical {
+    display: flex;
+    flex-direction: column;
+  }
 
-    .flex-item {
-        flex-basis: auto;
-    }
+  .flex-item {
+    flex-basis: auto;
+  }
 
-    .flex-top {
-        flex-basis: auto;
+  .flex-top {
+    flex-basis: auto;
+  }
+  .flex-bottom {
+    flex-grow: 1;
+  }
 
-    }
-    .flex-bottom {
-        flex-grow: 1;
-    }
+  .center {
+    -webkit-justify-content: center;
+    justify-content: center;
+  }
 
-    .center {
-        -webkit-justify-content: center;
-        justify-content: center;
-    }
+  .space-between {
+    -webkit-justify-content: space-between;
+    justify-content: space-between;
+  }
 
-    .space-between {
-        -webkit-justify-content: space-between;
-        justify-content: space-between;
-    }
+  hr {
+    border-top: 1px solid #eee8d5;
+    width: 100%;
+  }
 
-    hr {
-        border-top: 1px solid #eee8d5;
-        width: 100%;
-    }
+  .margin-bottom {
+    margin-bottom: 20px;
+  }
 
-    .margin-bottom {
-        margin-bottom: 20px;
-    }
+  .chart {
+    padding: 15px;
+  }
+  .center {
+    text-align: center;
+  }
 
-    .chart {
-        padding: 15px;
-    }
-    .center {
-        text-align: center;
-    }
+  #currently .temperature {
+    display: inline-block;
+    font-size: 60px;
+  }
 
-    #currently .temperature {
-      display: inline-block;
-      font-size: 60px;
-    }
+  /* Historical weather */
+  :global(.day-0 .icon),
+  :global(.day-1 .icon) {
+    opacity: 0.22;
+  }
 
-    /* Historical weather */
-    :global(.day-0 .icon),
-    :global(.day-1 .icon) {
-        opacity: .22;
-    }
+  /* Today */
+  :global(.day-2) {
+    font-weight: bold;
+  }
 
-    /* Today */
-    :global(.day-2) {
-        font-weight: bold;
-    }
+  #links {
+    margin: auto;
+  }
 
-    #links {
-        margin: auto;
-    }
+  .location {
+    margin: 15px;
+  }
 
-    .location {
-        margin: 15px;
-    }
+  .view {
+    position: fixed;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    padding: 8px;
+  }
 
-    .view {
-        position: fixed;
-        top: 0; bottom: 0;
-        left: 0; right: 0;
-        padding: 8px;
-    }
+  :global(#currently div.icon) {
+    width: 64px;
+    height: 64px;
+    display: inline-block;
+  }
 
-    :global(#currently div.icon) {
-        width: 64px;
-        height: 64px;
-        display: inline-block;
-    }
+  :global(div.icon) {
+    margin-bottom: 0px;
+    min-width: 40px;
+  }
 
-    :global(div.icon) {
-        margin-bottom: 0px;
-        min-width: 40px;
-    }
+  :global(.icon) {
+    width: 40px;
+    height: 40px;
+  }
 
-    :global(.icon) {
-        width: 40px;
-        height: 40px;
-    }
-
-    :global(div.icon img),
-    :global(.icon img) {
-        width: 100%;
-        object-fit: contain;
-    }
+  :global(div.icon img),
+  :global(.icon img) {
+    width: 100%;
+    object-fit: contain;
+  }
 </style>

@@ -78,8 +78,8 @@ exports.handler = (event, context) ->
             when 'mvc', 'mockvisualcrossing' then 'mockvisualcrossing'
             when 'mds', 'mockdarksky'        then 'mockdarksky'
 
-            # Default to darksky
-            else 'darksky'
+            # Default openweather
+            else 'openweather'
 
     # Fallback on mock API.
     preferredApis = [...preferredApis, 'mockdarksky']
